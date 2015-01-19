@@ -57,6 +57,9 @@ public class Option{
    * Print usage.
    */
   public static void printOptions(){
+    System.out.println("Class File Analyzer (CFA)  0.1.0");
+    System.out.println("Copyright (C) 2015 Yasumasa Suenaga");
+    System.out.println();
     System.out.println("Usage:");
     System.out.println("  java -classpath $JAVA_HOME/lib/tools.jar:cfa.jar jp.dip.ysfactory.cfa.Main [options] file1 file2 ...");
     System.out.println();
