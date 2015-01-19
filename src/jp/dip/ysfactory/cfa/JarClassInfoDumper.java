@@ -24,8 +24,6 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.util.jar.JarFile;
 
-import com.sun.tools.classfile.ConstantPoolException;
-
 
 public class JarClassInfoDumper implements Dumper{
 

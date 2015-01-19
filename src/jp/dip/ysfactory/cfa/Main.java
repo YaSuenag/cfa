@@ -19,10 +19,6 @@ package jp.dip.ysfactory.cfa;
  */
 
 
-import java.nio.file.Paths;
-import java.util.Arrays;
-
-
 public class Main{
 
   public static void main(String[] args) throws Exception{
