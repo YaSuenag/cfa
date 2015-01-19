@@ -33,14 +33,29 @@ import com.sun.tools.classfile.ConstantPool;
 import com.sun.tools.classfile.ConstantPoolException;
 
 
+/**
+ * Dump class information.
+ */
 public class ClassInfoDumper implements Dumper{
 
+  /**
+   * Field information.
+   */
   public static class FieldInfo{
 
+    /**
+     * Field type.
+     */
     private String type;
 
+    /**
+     * Class which is included this field.
+     */
     private String className;
 
+    /**
+     * Field name.
+     */
     private String name;
 
     public FieldInfo(ConstantPool.CPRefInfo ref){
@@ -73,12 +88,24 @@ public class ClassInfoDumper implements Dumper{
 
   }
 
+  /**
+   * Method information.
+   */
   public static class MethodInfo{
 
+    /**
+     * Class which is included this method.
+     */
     private String className;
 
+    /**
+     * Method name.
+     */
     private String name;
 
+    /**
+     * Method signature.
+     */
     private String signature;
 
     public MethodInfo(ConstantPool.CPRefInfo ref){
@@ -111,28 +138,63 @@ public class ClassInfoDumper implements Dumper{
 
   }
 
+  /**
+   * ClassFile instance of this class.
+   */
   private ClassFile clazz;
 
+  /**
+   * File name which is included in this class.
+   */
   private String fname;
 
+  /**
+   * Class name.
+   */
   private String className;
 
+  /**
+   * Super class of this class.
+   */
   private String superClass;
 
+  /**
+   * Interface list of this class.
+   */
   private List<String> interfaceList;
 
+  /**
+   * Field list of this class.
+   */
   private List<FieldInfo> fieldList;
 
+  /**
+   * Method list of this class.
+   */
   private List<MethodInfo> methodList;
 
+  /**
+   * Class collection of this class.
+   */
   private Set<String> classSet;
 
+  /**
+   * Constructor of ClassInfoDumper.
+   *
+   * @param path Path of class file.
+   */
   public ClassInfoDumper(Path path) throws IOException, ConstantPoolException{
     clazz = ClassFile.read(path);
     fname = path.toString();
     initialize();
   }
 
+  /**
+   * Constructor of ClassInfoDumper.
+   *
+   * @param in InputStream of class.
+   * @param fname File name or archive of class.
+   */
   public ClassInfoDumper(InputStream in, String fname)
                                throws IOException, ConstantPoolException{
     clazz = ClassFile.read(in);
@@ -140,6 +202,9 @@ public class ClassInfoDumper implements Dumper{
     initialize();
   }
 
+  /**
+   * Initialize class information.
+   */
   private void initialize(){
 
     try{
@@ -188,6 +253,16 @@ public class ClassInfoDumper implements Dumper{
     methodList.forEach(e -> classSet.add(e.getClassName()));
   }
 
+  /**
+   * Print class information as below:
+   * <ul>
+   *   <li>Class name</li>
+   *   <li>File name</li>
+   *   <li>Super class</li>
+   *   <li>Interfaces</li>
+   *   <li>Class version</li>
+   * </ul>
+   */
   public void printClassInfo(){
     System.out.println("Name: " + className);
     System.out.println("File: " + fname);
@@ -223,16 +298,25 @@ public class ClassInfoDumper implements Dumper{
 
   }
 
+  /**
+   * Print field information.
+   */
   public void printFieldRefInfo(){
     System.out.println("Field References:");
     fieldList.forEach(e -> System.out.println("  " + e.toString()));
   }
 
+  /**
+   * Print method information.
+   */
   public void printMethodRefInfo(){
     System.out.println("Method References:");
     methodList.forEach(e -> System.out.println("  " + e.toString()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void dumpInfo(Option option){
 

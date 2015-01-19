@@ -19,9 +19,17 @@ package jp.dip.ysfactory.cfa;
  */
 
 
+/**
+ * Interface for class information dumper.
+ */
 @FunctionalInterface
 public interface Dumper{
 
+  /**
+   * Dump class information.
+   *
+   * @param option Option to use in this dumper.
+   */
   public void dumpInfo(Option option);
 
 }

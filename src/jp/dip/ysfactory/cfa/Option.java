@@ -28,16 +28,34 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
+/**
+ * Argument parser.
+ */
 public class Option{
 
+  /**
+   * Target class list.
+   */
   private List<String> targetList;
 
+  /**
+   * Class filter list.
+   */
   private List<String> classFilterList;
 
+  /**
+   * Method filter list.
+   */
   private List<String> methodFilterList;
 
+  /**
+   * File list to analyze.
+   */
   private List<Path> fileList;
 
+  /**
+   * Print usage.
+   */
   public static void printOptions(){
     System.out.println("Usage:");
     System.out.println("  java -classpath $JAVA_HOME/lib/tools.jar:cfa.jar jp.dip.ysfactory.cfa.Main [options] file1 file2 ...");
@@ -52,6 +70,11 @@ public class Option{
     System.out.println("                          CFA will pick up classes which include them in ConstantPool.");
   }
 
+  /**
+   * Constructor of Option.
+   *
+   * @param args Commandline arguments.
+   */
   public Option(String[] args) throws IllegalArgumentException{
     targetList = null;
     classFilterList = null;

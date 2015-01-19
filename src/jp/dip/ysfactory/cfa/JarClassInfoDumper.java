@@ -25,14 +25,28 @@ import java.io.IOException;
 import java.util.jar.JarFile;
 
 
+/**
+ * ClassInfoDumper for JAR.
+ */
 public class JarClassInfoDumper implements Dumper{
 
+  /**
+   * Archive file name.
+   */
   private final String fname;
 
+  /**
+   * Constructor of JarClassInfoDumper.
+   *
+   * @param path Path to JAR.
+   */
   public JarClassInfoDumper(Path path){
     fname = path.toString();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void dumpInfo(Option option){
     try(JarFile jar = new JarFile(fname)){
