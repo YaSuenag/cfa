@@ -61,7 +61,7 @@ public class Option{
     System.out.println("Copyright (C) 2015 Yasumasa Suenaga");
     System.out.println();
     System.out.println("Usage:");
-    System.out.println("  java -classpath $JAVA_HOME/lib/tools.jar:cfa.jar jp.dip.ysfactory.cfa.Main [options] file1 file2 ...");
+    System.out.println("  java -jar cfa.jar [options] file1 file2 ...");
     System.out.println();
     System.out.println("Options:");
     System.out.println("  -h: This help.");

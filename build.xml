@@ -39,6 +39,9 @@
   <target name="jar" depends="compile">
     <jar destfile="${dist.dir}/cfa.jar">
       <zipfileset dir="${build.dir}" excludes=".gitkeep"/>
+      <manifest>
+        <attribute name="Main-Class" value="jp.dip.ysfactory.cfa.Bootstrap"/>
+      </manifest>
     </jar>
   </target>
  
