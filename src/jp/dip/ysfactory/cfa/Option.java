@@ -54,6 +54,11 @@ public class Option{
   private List<Path> fileList;
 
   /**
+   * Whether short output?
+   */
+  private boolean shortOutput;
+
+  /**
    * Print usage.
    */
   public static void printOptions(){
@@ -71,6 +76,8 @@ public class Option{
     System.out.println("                        CFA will pick up classes which include them in ConstantPool.");
     System.out.println("  -m method1,method2,...: Method filter.");
     System.out.println("                          CFA will pick up classes which include them in ConstantPool.");
+    System.out.println("  -s: Short output.");
+    System.out.println("      If this option is added, CFA will output class name and file path only.");
   }
 
   /**
@@ -82,6 +89,7 @@ public class Option{
     targetList = null;
     classFilterList = null;
     methodFilterList = null;
+    shortOutput = false;
     fileList = new ArrayList<>();
 
     Iterator<String> itr = Arrays.asList(args).iterator();
@@ -121,6 +129,10 @@ public class Option{
           methodFilterList = Arrays.asList(itr.next().split(","));
           break;
 
+        case "-s":
+          shortOutput = true;
+          break;
+
         default:
           Path path = Paths.get(str);
           File file = path.toFile();
@@ -152,6 +164,10 @@ public class Option{
 
   public List<Path> getFileList(){
     return fileList;
+  }
+
+  public boolean isShort(){
+    return shortOutput;
   }
 
 }

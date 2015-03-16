@@ -263,9 +263,14 @@ public class ClassInfoDumper implements Dumper{
    *   <li>Class version</li>
    * </ul>
    */
-  public void printClassInfo(){
+  public void printClassInfo(boolean isShort){
     System.out.println("Name: " + className);
     System.out.println("File: " + fname);
+
+    if(isShort){
+      return;
+    }
+
     System.out.println("Super class: " + superClass);
 
     System.out.println("Interfaces:");
@@ -347,9 +352,14 @@ public class ClassInfoDumper implements Dumper{
       }
     }
 
-    printClassInfo();
-    printFieldRefInfo();
-    printMethodRefInfo();
+    printClassInfo(option.isShort());
+
+    if(!option.isShort()){
+      printFieldRefInfo();
+      printMethodRefInfo();
+    }
+
+    System.out.println();
   }
 
 }
