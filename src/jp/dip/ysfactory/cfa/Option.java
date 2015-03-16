@@ -62,7 +62,7 @@ public class Option{
    * Print usage.
    */
   public static void printOptions(){
-    System.out.println("Class File Analyzer (CFA)  development version");
+    System.out.println("Class File Analyzer (CFA)  0.1.1");
     System.out.println("Copyright (C) 2015 Yasumasa Suenaga");
     System.out.println();
     System.out.println("Usage:");
