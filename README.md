@@ -14,7 +14,7 @@ $ ant
 
 ```shell
 $ cd dist
-$ ./cfa.sh <options> <files (JAR or class file)>
+$ java -jar cfa.jar <options> <files (JAR or class file)>
 ```
 # Options
 
@@ -29,6 +29,9 @@ $ ./cfa.sh <options> <files (JAR or class file)>
 * -m method1,method2,...
  * Method filter.
  * CFA will pick up classes which include them in ConstantPool.
+* -s
+ * Short output.
+ * If this option is added, CFA will output class name and file path only.
 
 # License
 GNU General Public License v2
