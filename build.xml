@@ -40,7 +40,7 @@
     <jar destfile="${dist.dir}/cfa.jar">
       <zipfileset dir="${build.dir}" excludes=".gitkeep"/>
       <manifest>
-        <attribute name="Main-Class" value="jp.dip.ysfactory.cfa.Bootstrap"/>
+        <attribute name="Main-Class" value="jp.dip.ysfactory.cfa.Main"/>
       </manifest>
     </jar>
   </target>
