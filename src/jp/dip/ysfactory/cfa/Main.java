@@ -63,16 +63,8 @@ public class Main{
 
     option.getFileList()
           .stream()
-          .map(p -> {
-                      try{
-                        return p.toString().endsWith(".jar")
-                                                 ? new JarClassInfoDumper(p)
-                                                 : new ClassInfoDumper(p);
-                      }
-                      catch(Exception e){
-                        throw new RuntimeException(e);
-                      }
-                    })
+          .map(new DumperChooser())
+          .filter(d -> d !=  null)
           .forEach(d -> ((Dumper)d).dumpInfo(option));
   }
 

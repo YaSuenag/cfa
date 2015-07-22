@@ -66,7 +66,7 @@ public class Option{
     System.out.println("Copyright (C) 2015 Yasumasa Suenaga");
     System.out.println();
     System.out.println("Usage:");
-    System.out.println("  java -jar cfa.jar [options] file1 file2 ...");
+    System.out.println("  java -jar cfa.jar [options] [file or directory...]");
     System.out.println();
     System.out.println("Options:");
     System.out.println("  -h: This help.");
@@ -137,7 +137,7 @@ public class Option{
           Path path = Paths.get(str);
           File file = path.toFile();
 
-          if(!file.exists() || file.isDirectory()){
+          if(!file.exists()){
             throw new IllegalArgumentException(
                                        "Invalid file: " + path.toString());
           }
