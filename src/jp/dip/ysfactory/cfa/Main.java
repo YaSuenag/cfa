@@ -61,9 +61,10 @@ public class Main{
       return;
     }
 
+    DumperChooser chooser = new DumperChooser();
     option.getFileList()
           .stream()
-          .map(new DumperChooser())
+          .map(chooser)
           .filter(d -> d !=  null)
           .forEach(d -> ((Dumper)d).dumpInfo(option));
   }

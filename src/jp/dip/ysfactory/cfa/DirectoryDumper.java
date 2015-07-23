@@ -52,16 +52,19 @@ public class DirectoryDumper implements Dumper{
    */
   @Override
   public void dumpInfo(Option option){
+    DumperChooser chooser = new DumperChooser();
+
     try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)){
       StreamSupport.stream(Spliterators.spliteratorUnknownSize(
                                 stream.iterator(), Spliterator.ORDERED), false)
-                   .map(new DumperChooser())
+                   .map(chooser)
                    .filter(d -> d != null)
                    .forEach(d -> d.dumpInfo(option));
     }
     catch(IOException e){
       throw new UncheckedIOException(e);
     }
+
   }
 
 }
