@@ -1,7 +1,7 @@
 package jp.dip.ysfactory.cfa;
 
 /*
- * Copyright (C) 2015 Yasumasa Suenaga
+ * Copyright (C) 2015, 2017, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,7 +63,7 @@ public class Option{
    */
   public static void printOptions(){
     System.out.println("Class File Analyzer (CFA)  development version");
-    System.out.println("Copyright (C) 2015 Yasumasa Suenaga");
+    System.out.println("Copyright (C) 2015, 2017, Yasumasa Suenaga");
     System.out.println();
     System.out.println("Usage:");
     System.out.println("  java -jar cfa.jar [options] [file or directory...]");
