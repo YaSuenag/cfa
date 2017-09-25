@@ -22,14 +22,24 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-TOOLS_JAR=$JAVA_HOME/lib/tools.jar
-
-if [ ! -e $TOOLS_JAR ]; then
-  echo "$TOOLS_JAR does not exist."
-  exit 2
-fi
+JAVA_VERSION=`$JAVA_HOME/bin/java -version 2>&1 | head -n 1 | sed -e 's/^.\+"\([0-9]\+\)\.\?.*$/\1/'`
 
 BASEDIR=`dirname $0`
 MAIN_CLASS=jp.dip.ysfactory.cfa.Main
 
-$JAVA_HOME/bin/java -cp $BASEDIR/cfa.jar:$TOOLS_JAR $MAIN_CLASS $@
+if [ $JAVA_VERSION -eq 1 ]; then
+  TOOLS_JAR=$JAVA_HOME/lib/tools.jar
+
+  if [ ! -e $TOOLS_JAR ]; then
+    echo "$TOOLS_JAR does not exist."
+    exit 2
+  fi
+
+  $JAVA_HOME/bin/java -cp $BASEDIR/cfa.jar:$TOOLS_JAR $MAIN_CLASS $@
+else
+  $JAVA_HOME/bin/java -p $BASEDIR/cfa.jar \
+                      --add-modules cfa \
+                      --add-exports jdk.jdeps/com.sun.tools.classfile=cfa \
+                      $MAIN_CLASS \
+                      $@
+fi
