@@ -1,21 +1,25 @@
-Class File Analyzer (CFA).
+Class File Analyzer (CFA).  
 Analyze class files from ConstantPool.
 
 
 # How to Build
 
+## Requirements
+
+* JDK 16 or later
+* Maven 3.6.3 or later
+
+## Build
+
 ```
 $ export JAVA_HOME=/path/to/jdk
-$ ant
+$ mvn package
 ```
 
 # How to use
 
-You have to set `$JAVA_HOME` which points JDK installed directory.
-Java 8 or earlier, CFA requires `$JAVA_HOME/lib/tools.jar` .
-
 ```
-$ cfa.sh [options] [files (JAR or class file)]
+$ cfa [options] [files (JAR or class file)]
 ```
 
 # Options
@@ -38,4 +42,3 @@ $ cfa.sh [options] [files (JAR or class file)]
 # License
 
 GNU General Public License v2
-

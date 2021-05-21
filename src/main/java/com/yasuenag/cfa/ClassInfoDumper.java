@@ -1,7 +1,7 @@
-package jp.dip.ysfactory.cfa;
+package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015 Yasumasa Suenaga
+ * Copyright (C) 2015, 2021, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
