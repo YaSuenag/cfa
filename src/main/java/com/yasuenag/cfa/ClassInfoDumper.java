@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.IntStream;
@@ -178,6 +179,25 @@ public class ClassInfoDumper implements Dumper{
    */
   private Set<String> classSet;
 
+  private static final Map<Integer, String> CLASS_VERSION_MAP = Map.ofEntries(
+                                                 Map.entry(46, "Java 1.2"),
+                                                 Map.entry(47, "Java 1.3"),
+                                                 Map.entry(48, "Java 1.4"),
+                                                 Map.entry(49, "Java 1.5"),
+                                                 Map.entry(50, "Java 6"),
+                                                 Map.entry(51, "Java 7"),
+                                                 Map.entry(52, "Java 8"),
+                                                 Map.entry(53, "Java 9"),
+                                                 Map.entry(54, "Java 10"),
+                                                 Map.entry(55, "Java 11"),
+                                                 Map.entry(56, "Java 12"),
+                                                 Map.entry(57, "Java 13"),
+                                                 Map.entry(58, "Java 14"),
+                                                 Map.entry(59, "Java 15"),
+                                                 Map.entry(60, "Java 16"),
+                                                 Map.entry(61, "Java 17")
+                                            );
+
   /**
    * Constructor of ClassInfoDumper.
    *
@@ -276,31 +296,10 @@ public class ClassInfoDumper implements Dumper{
     System.out.println("Interfaces:");
     interfaceList.forEach(e -> System.out.println("  " + e));
 
-    System.out.print(String.format("Class version: %d.%d ",
-                                     clazz.major_version, clazz.minor_version));
-    if(clazz.minor_version == 0){
-      switch(clazz.major_version){
-        case 46: System.out.println("(Java 1.2)");
-                 break;
-        case 47: System.out.println("(Java 1.3)");
-                 break;
-        case 48: System.out.println("(Java 1.4)");
-                 break;
-        case 49: System.out.println("(Java 1.5)");
-                 break;
-        case 50: System.out.println("(Java 6)");
-                 break;
-        case 51: System.out.println("(Java 7)");
-                 break;
-        case 52: System.out.println("(Java 8)");
-                 break;
-        default: System.out.println("(Unknown)");
-      }
-    }
-    else{
-      System.out.println("(Unknown)");
-    }
-
+    String clsVerStr = (clazz.minor_version == 0) ? CLASS_VERSION_MAP.getOrDefault(clazz.major_version, "Unknown")
+                                                  : "Unknown";
+    System.out.println(String.format("Class version: %d.%d (%s)",
+                                     clazz.major_version, clazz.minor_version, clsVerStr));
   }
 
   /**
