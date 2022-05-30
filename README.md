@@ -1,6 +1,8 @@
 Class File Analyzer (CFA).  
-Analyze class files from ConstantPool.
+![CodeQL](../../workflows/CodeQL/badge.svg)
+===================
 
+Analyze class files from ConstantPool.
 
 # How to Build
 
