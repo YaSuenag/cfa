@@ -28,17 +28,15 @@ jobs:
       - name: 'Run Maven'
         run: mvn -B package
 
-      - name: 'Setup environment variables for release'
+      - name: Get asset file name
         run: |
-          TAG=$(echo ${{ github.ref }} | cut -d '/' -f 3)
           ASSET=$(find target/ -name 'cfa*.zip')
-          echo "TAG=$TAG" >> $GITHUB_ENV
           echo "ASSET=$ASSET" >> $GITHUB_ENV
         shell: bash
 
       - name: 'Upload Release Asset'
         uses: AButler/upload-release-assets@v2.0
         with:
-          release-tag: ${{ env.TAG }}
+          release-tag: ${{ github.ref_name }}
           files: ${{ env.ASSET }}
           repo-token: ${{ github.token }}
