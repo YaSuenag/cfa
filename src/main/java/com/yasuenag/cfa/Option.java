@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2021, Yasumasa Suenaga
+ * Copyright (C) 2015, 2023, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,10 +22,13 @@ package com.yasuenag.cfa;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
 
 
 /**
@@ -62,8 +65,16 @@ public class Option{
    * Print usage.
    */
   public static void printOptions(){
-    System.out.println("Class File Analyzer (CFA)  0.3.0");
-    System.out.println("Copyright (C) 2015, 2021, Yasumasa Suenaga");
+    var prop = new Properties();
+    try(var res = Option.class.getResourceAsStream("/cfa.properties")){
+      prop.load(res);
+    }
+    catch(IOException e){
+      throw new UncheckedIOException(e);
+    }
+
+    System.out.format("Class File Analyzer (CFA) %s\n", prop.getProperty("version"));
+    System.out.format("Copyright (C) 2015, %s, Yasumasa Suenaga\n", prop.getProperty("buildYear"));
     System.out.println();
     System.out.println("Usage:");
     System.out.println("  java -jar cfa.jar [options] [file or directory...]");
