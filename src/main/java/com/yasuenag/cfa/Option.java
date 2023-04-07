@@ -76,19 +76,21 @@ public class Option{
     System.out.format("Class File Analyzer (CFA) %s\n", prop.getProperty("version"));
     System.out.format("Copyright (C) 2015, %s, Yasumasa Suenaga\n", prop.getProperty("buildYear"));
     System.out.println();
-    System.out.println("Usage:");
-    System.out.println("  java -jar cfa.jar [options] [file or directory...]");
-    System.out.println();
-    System.out.println("Options:");
-    System.out.println("  -h: This help.");
-    System.out.println("  -t class1,class2,...: Target class.");
-    System.out.println("                        CFA will pick up classes from file list.");
-    System.out.println("  -c class1,class2,...: Class filter.");
-    System.out.println("                        CFA will pick up classes which include them in ConstantPool.");
-    System.out.println("  -m method1,method2,...: Method filter.");
-    System.out.println("                          CFA will pick up classes which include them in ConstantPool.");
-    System.out.println("  -s: Short output.");
-    System.out.println("      If this option is added, CFA will output class name and file path only.");
+    System.out.println("""
+    Usage:
+      java -jar cfa.jar [options] [file or directory...]");
+
+    Options:
+      -h: This help.
+      -t class1,class2,...: Target class.
+                            CFA will pick up classes from file list.
+      -c class1,class2,...: Class filter.
+                            CFA will pick up classes which include them in ConstantPool.
+      -m method1,method2,...: Method filter.
+                              CFA will pick up classes which include them in ConstantPool.
+      -s: Short output.
+          If this option is added, CFA will output class name and file path only.
+    """);
   }
 
   /**
