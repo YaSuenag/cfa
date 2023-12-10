@@ -21,17 +21,18 @@ package com.yasuenag.cfa;
 import java.nio.file.Path;
 import java.io.InputStream;
 import java.io.IOException;
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.ClassModel;
+import java.lang.classfile.constantpool.ClassEntry;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 import java.util.stream.Collectors;
-
-import com.sun.tools.classfile.ClassFile;
-import com.sun.tools.classfile.ConstantPool;
-import com.sun.tools.classfile.ConstantPoolException;
 
 
 /**
@@ -40,109 +41,9 @@ import com.sun.tools.classfile.ConstantPoolException;
 public class ClassInfoDumper implements Dumper{
 
   /**
-   * Field information.
+   * ClassModel of the class.
    */
-  public static class FieldInfo{
-
-    /**
-     * Field type.
-     */
-    private String type;
-
-    /**
-     * Class which is included this field.
-     */
-    private String className;
-
-    /**
-     * Field name.
-     */
-    private String name;
-
-    public FieldInfo(ConstantPool.CPRefInfo ref){
-      try{
-        type = ref.getNameAndTypeInfo().getType().replace('/', '.');
-        className = ref.getClassName().replace('/', '.');
-        name = ref.getNameAndTypeInfo().getName();
-      }
-      catch(ConstantPoolException e){
-        throw new RuntimeException(e);
-      }
-    }
-
-    public String getType(){
-      return type;
-    }
-
-    public String getClassName(){
-      return className;
-    }
-
-    public String getName(){
-      return name;
-    }
-
-    @Override
-    public String toString(){
-      return type + " " + className + "." + name;
-    }
-
-  }
-
-  /**
-   * Method information.
-   */
-  public static class MethodInfo{
-
-    /**
-     * Class which is included this method.
-     */
-    private String className;
-
-    /**
-     * Method name.
-     */
-    private String name;
-
-    /**
-     * Method signature.
-     */
-    private String signature;
-
-    public MethodInfo(ConstantPool.CPRefInfo ref){
-      try{
-        className = ref.getClassName().replace('/', '.');
-        name = ref.getNameAndTypeInfo().getName();
-        signature = ref.getNameAndTypeInfo().getType();
-      }
-      catch(ConstantPoolException e){
-        throw new RuntimeException(e);
-      }
-    }
-
-    public String getClassName(){
-      return className;
-    }
-
-    public String getName(){
-      return name;
-    }
-
-    public String getSignature(){
-      return signature;
-    }
-
-    @Override
-    public String toString(){
-      return className + "." + name + signature;
-    }
-
-  }
-
-  /**
-   * ClassFile instance of this class.
-   */
-  private ClassFile clazz;
+  private ClassModel clazz;
 
   /**
    * File name which is included in this class.
@@ -165,19 +66,14 @@ public class ClassInfoDumper implements Dumper{
   private List<String> interfaceList;
 
   /**
-   * Field list of this class.
-   */
-  private List<FieldInfo> fieldList;
-
-  /**
-   * Method list of this class.
-   */
-  private List<MethodInfo> methodList;
-
-  /**
    * Class collection of this class.
    */
   private Set<String> classSet;
+
+  /**
+   * Pattern for JNI class signature
+   */
+  private static final Pattern JNISIG_PATTERN = Pattern.compile("^L(.+);$");
 
   private static final Map<Integer, String> CLASS_VERSION_MAP = Map.ofEntries(
                                                  Map.entry(46, "Java 1.2"),
@@ -207,8 +103,8 @@ public class ClassInfoDumper implements Dumper{
    *
    * @param path Path of class file.
    */
-  public ClassInfoDumper(Path path) throws IOException, ConstantPoolException{
-    clazz = ClassFile.read(path);
+  public ClassInfoDumper(Path path) throws IOException{
+    clazz = ClassFile.of().parse(path);
     fname = path.toString();
     initialize();
   }
@@ -219,49 +115,39 @@ public class ClassInfoDumper implements Dumper{
    * @param in InputStream of class.
    * @param fname File name or archive of class.
    */
-  public ClassInfoDumper(InputStream in, String fname)
-                               throws IOException, ConstantPoolException{
-    clazz = ClassFile.read(in);
+  public ClassInfoDumper(InputStream in, String fname) throws IOException{
+    clazz = ClassFile.of().parse(in.readAllBytes());
     this.fname = fname;
     initialize();
+  }
+
+  private String getClassNameInJava(ClassEntry c){
+    return getClassNameInJava(c.asInternalName());
+  }
+
+  private String getClassNameInJava(String c){
+    return c.replace('/', '.');
+  }
+
+  private Optional<String> getJavaClassFromJNISignature(String sig){
+    var matcher = JNISIG_PATTERN.matcher(sig);
+    return matcher.matches() ? Optional.of(getClassNameInJava(matcher.group(1)))
+                             : Optional.empty();
   }
 
   /**
    * Initialize class information.
    */
   private void initialize(){
+    className = getClassNameInJava(clazz.thisClass());
+    superClass = clazz.superclass()
+                      .map(this::getClassNameInJava)
+                      .orElse(null);
 
-    try{
-      className = clazz.getName().replace('/', '.');
-      superClass = clazz.getSuperclassName().replace('/', '.');
-    }
-    catch(ConstantPoolException e){
-      throw new RuntimeException(e);
-    }
-
-    interfaceList = IntStream.range(0, clazz.interfaces.length)
-                             .mapToObj(i -> {
-                                              try{
-                                                return clazz.getInterfaceName(i);
-                                              }
-                                              catch(ConstantPoolException e){
-                                                throw new RuntimeException(e);
-                                              }
-                                            })
-                             .map(c -> c.replace('/', '.'))
-                             .collect(Collectors.toList());
-    fieldList = StreamSupport.stream(
-                          clazz.constant_pool.entries().spliterator(), false)
-                  .filter(p -> p instanceof ConstantPool.CONSTANT_Fieldref_info)
-                  .map(p -> new FieldInfo((ConstantPool.CPRefInfo)p))
-                  .collect(Collectors.toList());
-    methodList = StreamSupport.stream(
-                          clazz.constant_pool.entries().spliterator(), false)
-                  .filter(p -> 
-                   (p instanceof ConstantPool.CONSTANT_Methodref_info) ||
-                   (p instanceof ConstantPool.CONSTANT_InterfaceMethodref_info))
-                  .map(p -> new MethodInfo((ConstantPool.CPRefInfo)p))
-                  .collect(Collectors.toList());
+    interfaceList = clazz.interfaces()
+                         .stream()
+                         .map(this::getClassNameInJava)
+                         .toList();
 
     classSet = new HashSet<>();
 
@@ -270,11 +156,15 @@ public class ClassInfoDumper implements Dumper{
     }
 
     interfaceList.forEach(classSet::add);
-    fieldList.forEach(e -> {
-                             classSet.add(e.getType());
-                             classSet.add(e.getClassName());
-                           });
-    methodList.forEach(e -> classSet.add(e.getClassName()));
+    clazz.fields()
+         .forEach(f -> {
+            getJavaClassFromJNISignature(f.fieldType().stringValue()).ifPresent(classSet::add);
+            classSet.add(getClassNameInJava(f.parent().get().thisClass()));
+          });
+    clazz.methods()
+         .stream()
+         .map(m -> getClassNameInJava(m.parent().get().thisClass()))
+         .forEach(classSet::add);
   }
 
   /**
@@ -300,10 +190,10 @@ public class ClassInfoDumper implements Dumper{
     System.out.println("Interfaces:");
     interfaceList.forEach(e -> System.out.println("  " + e));
 
-    String clsVerStr = (clazz.minor_version == 0) ? CLASS_VERSION_MAP.getOrDefault(clazz.major_version, "Unknown")
+    String clsVerStr = (clazz.minorVersion() == 0) ? CLASS_VERSION_MAP.getOrDefault(clazz.majorVersion(), "Unknown")
                                                   : "Unknown";
     System.out.println(String.format("Class version: %d.%d (%s)",
-                                     clazz.major_version, clazz.minor_version, clsVerStr));
+                                     clazz.majorVersion(), clazz.minorVersion(), clsVerStr));
   }
 
   /**
@@ -311,7 +201,8 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printFieldRefInfo(){
     System.out.println("Field References:");
-    fieldList.forEach(e -> System.out.println("  " + e.toString()));
+    clazz.fields()
+         .forEach(f -> System.out.println("  " + f.fieldName().stringValue()));
   }
 
   /**
@@ -319,7 +210,8 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printMethodRefInfo(){
     System.out.println("Method References:");
-    methodList.forEach(e -> System.out.println("  " + e.toString()));
+    clazz.methods()
+         .forEach(f -> System.out.println("  " + f.methodName().stringValue()));
   }
 
   /**
@@ -348,9 +240,10 @@ public class ClassInfoDumper implements Dumper{
     if(option.getMethodFilterList() != null){
       if(!option.getMethodFilterList()
                 .stream()
-                .anyMatch(t -> methodList.stream()
-                                         .map(e -> e.toString())
-                                         .anyMatch(m -> m.contains(t)))){
+                .anyMatch(t -> clazz.methods()
+                                    .stream()
+                                    .map(m -> m.methodName().stringValue())
+                                    .anyMatch(m -> m.contains(t)))){
         return;
       }
     }

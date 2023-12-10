@@ -26,7 +26,7 @@
 
     <groupId>com.yasuenag</groupId>
     <artifactId>cfa</artifactId>
-    <version>0.3.2</version>
+    <version>0.4.0</version>
     <name>CFA</name>
 
     <properties>
@@ -34,8 +34,8 @@
         <imageName>${project.artifactId}-${project.version}</imageName>
         <buildYear>${maven.build.timestamp}</buildYear>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.source>22</maven.compiler.source>
+        <maven.compiler.target>22</maven.compiler.target>
     </properties>
 
     <build>
@@ -43,18 +43,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-Xlint:all</arg>
-                        <arg>--add-exports=jdk.jdeps/com.sun.tools.classfile=cfa</arg>
+                        <arg>--enable-preview</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <id>jlink</id>
@@ -74,7 +74,7 @@
                                     add-option does not accept argument which stats with '\-\-',
                                     so HeapDumpOnOutOfMemoryError is added to the top of args to avoid it.
                                 -->
-                                <argument>-XX:+HeapDumpOnOutOfMemoryError --add-exports=jdk.jdeps/com.sun.tools.classfile=cfa</argument>
+                                <argument>-XX:+HeapDumpOnOutOfMemoryError --enable-preview</argument>
                                 <argument>--launcher</argument>
                                 <argument>${project.artifactId}=cfa/com.yasuenag.cfa.Main</argument>
                                 <argument>--output</argument>
@@ -91,7 +91,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.6.0</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/main/assembly/distribution.xml</descriptor>
