@@ -1,4 +1,4 @@
-Class File Analyzer (CFA).  
+Class File Analyzer (CFA)
 ![CodeQL](../../workflows/CodeQL/badge.svg)
 ===================
 
@@ -8,7 +8,7 @@ Analyze class files from ConstantPool.
 
 ## Requirements
 
-* JDK 16 or later
+* JDK 22 or later
 * Maven 3.6.3 or later
 
 ## Build
