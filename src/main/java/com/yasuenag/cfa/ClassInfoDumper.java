@@ -95,7 +95,8 @@ public class ClassInfoDumper implements Dumper{
                                                  Map.entry(62, "Java 18"),
                                                  Map.entry(63, "Java 19"),
                                                  Map.entry(64, "Java 20"),
-                                                 Map.entry(65, "Java 21")
+                                                 Map.entry(65, "Java 21"),
+                                                 Map.entry(66, "Java 22")
                                             );
 
   /**
