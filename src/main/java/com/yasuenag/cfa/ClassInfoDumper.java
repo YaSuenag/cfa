@@ -300,8 +300,10 @@ public class ClassInfoDumper implements Dumper{
     System.out.println("Interfaces:");
     interfaceList.forEach(e -> System.out.println("  " + e));
 
-    String clsVerStr = (clazz.minor_version == 0) ? CLASS_VERSION_MAP.getOrDefault(clazz.major_version, "Unknown")
-                                                  : "Unknown";
+    String clsVerStr = CLASS_VERSION_MAP.getOrDefault(clazz.major_version, "Unknown");
+    if(clazz.minor_version != 0){
+      clsVerStr += clazz.minor_version == 65535 ? " (Preview)" : " (Unknown minor version)";
+    }
     System.out.println(String.format("Class version: %d.%d (%s)",
                                      clazz.major_version, clazz.minor_version, clsVerStr));
   }
