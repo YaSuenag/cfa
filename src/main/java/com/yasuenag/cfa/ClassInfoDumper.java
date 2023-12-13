@@ -24,15 +24,17 @@ import java.io.IOException;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.constantpool.ClassEntry;
+import java.lang.classfile.constantpool.FieldRefEntry;
+import java.lang.classfile.constantpool.InterfaceMethodRefEntry;
+import java.lang.classfile.constantpool.MemberRefEntry;
+import java.lang.classfile.constantpool.MethodRefEntry;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
-import java.util.stream.Collectors;
 
 
 /**
@@ -64,6 +66,16 @@ public class ClassInfoDumper implements Dumper{
    * Interface list of this class.
    */
   private List<String> interfaceList;
+
+  /**
+   * FieldRef list of this class.
+   */
+  private List<FieldRefEntry> fieldList;
+
+  /**
+   * MethodRef list of this class.
+   */
+  private List<MemberRefEntry> methodList;
 
   /**
    * Class collection of this class.
@@ -150,6 +162,20 @@ public class ClassInfoDumper implements Dumper{
                          .map(this::getClassNameInJava)
                          .toList();
 
+    fieldList = new ArrayList<>();
+    methodList = new ArrayList<>();
+    clazz.constantPool()
+         .iterator()
+         .forEachRemaining(p -> {
+            if(p instanceof FieldRefEntry f){
+              fieldList.add(f);
+            }
+            else if(p instanceof MethodRefEntry ||
+                    p instanceof InterfaceMethodRefEntry){
+              methodList.add((MemberRefEntry)p);
+            }
+          });
+
     classSet = new HashSet<>();
 
     if(superClass != null){
@@ -157,15 +183,12 @@ public class ClassInfoDumper implements Dumper{
     }
 
     interfaceList.forEach(classSet::add);
-    clazz.fields()
-         .forEach(f -> {
-            getJavaClassFromJNISignature(f.fieldType().stringValue()).ifPresent(classSet::add);
-            classSet.add(getClassNameInJava(f.parent().get().thisClass()));
-          });
-    clazz.methods()
-         .stream()
-         .map(m -> getClassNameInJava(m.parent().get().thisClass()))
-         .forEach(classSet::add);
+    fieldList.stream()
+             .map(f -> getJavaClassFromJNISignature(f.type().stringValue()))
+             .forEach(f -> f.ifPresent(classSet::add));
+    methodList.stream()
+              .map(m -> getClassNameInJava(m.owner()))
+              .forEach(classSet::add);
   }
 
   /**
@@ -202,8 +225,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printFieldRefInfo(){
     System.out.println("Field References:");
-    clazz.fields()
-         .forEach(f -> System.out.println("  " + f.fieldName().stringValue()));
+    fieldList.forEach(f -> System.out.println(STR."  \{f.type().stringValue()} \{getClassNameInJava(f.owner())}.\{f.name().stringValue()}"));
   }
 
   /**
@@ -211,8 +233,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printMethodRefInfo(){
     System.out.println("Method References:");
-    clazz.methods()
-         .forEach(f -> System.out.println("  " + f.methodName().stringValue()));
+    methodList.forEach(m -> System.out.println(STR."  \{getClassNameInJava(m.owner())}.\{m.name().stringValue()}\{m.type().stringValue()}"));
   }
 
   /**
