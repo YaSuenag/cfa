@@ -183,9 +183,10 @@ public class ClassInfoDumper implements Dumper{
     }
 
     interfaceList.forEach(classSet::add);
-    fieldList.stream()
-             .map(f -> getJavaClassFromJNISignature(f.type().stringValue()))
-             .forEach(f -> f.ifPresent(classSet::add));
+    fieldList.forEach(f -> {
+      getJavaClassFromJNISignature(f.type().stringValue()).ifPresent(classSet::add);
+      classSet.add(getClassNameInJava(f.owner()));
+    });
     methodList.stream()
               .map(m -> getClassNameInJava(m.owner()))
               .forEach(classSet::add);
