@@ -30,10 +30,8 @@ jobs:
           cache: 'maven'
 
       - name: 'Run Maven'
-        run: mvn -B package
-
-      - name: Get asset file name
         run: |
+          mvn -B package
           ASSET=$(find target/ -name 'cfa*.zip')
           echo "ASSET=$ASSET" >> $GITHUB_ENV
         shell: bash
