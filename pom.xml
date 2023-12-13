@@ -47,8 +47,8 @@
                 <configuration>
                     <compilerArgs>
                         <arg>-Xlint:all</arg>
-                        <arg>--enable-preview</arg>
                     </compilerArgs>
+                    <enablePreview>true</enablePreview>
                 </configuration>
             </plugin>
             <plugin>
@@ -77,7 +77,6 @@
                         <addOption>--enable-preview</addOption>
                     </addOptions>
                     <launcher>${project.artifactId}=cfa/com.yasuenag.cfa.Main</launcher>
-                    <compress>2</compress>
                     <noHeaderFiles>true</noHeaderFiles>
                     <noManPages>true</noManPages>
                 </configuration>
