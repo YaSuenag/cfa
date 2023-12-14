@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2021, Yasumasa Suenaga
+ * Copyright (C) 2015, 2023, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +17,8 @@ package com.yasuenag.cfa;
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import java.util.Objects;
 
 
 public class Main{
@@ -37,8 +39,8 @@ public class Main{
     option.getFileList()
           .stream()
           .map(chooser)
-          .filter(d -> d !=  null)
-          .forEach(d -> ((Dumper)d).dumpInfo(option));
+          .filter(Objects::nonNull)
+          .forEach(d -> d.dumpInfo(option));
   }
 
 }

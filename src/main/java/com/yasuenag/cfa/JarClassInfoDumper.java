@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2021, Yasumasa Suenaga
+ * Copyright (C) 2015, 2023, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +22,8 @@ package com.yasuenag.cfa;
 import java.nio.file.Path;
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.function.Predicate;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 
@@ -44,6 +46,15 @@ public class JarClassInfoDumper implements Dumper{
     fname = path.toString();
   }
 
+  private void dumpFromStream(JarFile jar, JarEntry entry, Option option){
+    try(InputStream in = jar.getInputStream(entry)){
+      ClassInfoDumper dumper = new ClassInfoDumper(in, fname);
+      dumper.dumpInfo(option);
+    }
+    catch(Exception ex){
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -51,17 +62,9 @@ public class JarClassInfoDumper implements Dumper{
   public void dumpInfo(Option option){
     try(JarFile jar = new JarFile(fname)){
       jar.stream()
-         .filter(e -> !e.isDirectory())
+         .filter(Predicate.not(JarEntry::isDirectory))
          .filter(e -> e.getName().endsWith(".class"))
-         .forEach(e -> {
-                         try(InputStream in = jar.getInputStream(e)){
-                           ClassInfoDumper dumper = new ClassInfoDumper(
-                                                                     in, fname);
-                           dumper.dumpInfo(option);
-                         }
-                         catch(Exception ex){
-                         }
-                       });
+         .forEach(e -> dumpFromStream(jar, e, option));
     }
     catch(IOException e){
       e.printStackTrace();

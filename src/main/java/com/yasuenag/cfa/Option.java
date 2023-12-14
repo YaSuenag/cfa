@@ -78,7 +78,7 @@ public class Option{
     System.out.println();
     System.out.println("""
     Usage:
-      java -jar cfa.jar [options] [file or directory...]");
+      cfa [options] [file or directory...]
 
     Options:
       -h: This help.
