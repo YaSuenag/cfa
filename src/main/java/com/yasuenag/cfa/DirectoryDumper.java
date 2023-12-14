@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2021, Yasumasa Suenaga
+ * Copyright (C) 2015, 2023, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,11 +18,10 @@ package com.yasuenag.cfa;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import java.util.Objects;
 import java.nio.file.Path;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -55,10 +54,9 @@ public class DirectoryDumper implements Dumper{
     DumperChooser chooser = new DumperChooser();
 
     try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)){
-      StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                                stream.iterator(), Spliterator.ORDERED), false)
+      StreamSupport.stream(stream.spliterator(), false)
                    .map(chooser)
-                   .filter(d -> d != null)
+                   .filter(Objects::nonNull)
                    .forEach(d -> d.dumpInfo(option));
     }
     catch(IOException e){
