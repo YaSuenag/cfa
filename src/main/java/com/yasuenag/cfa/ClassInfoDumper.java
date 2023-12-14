@@ -28,13 +28,12 @@ import java.lang.classfile.constantpool.FieldRefEntry;
 import java.lang.classfile.constantpool.InterfaceMethodRefEntry;
 import java.lang.classfile.constantpool.MemberRefEntry;
 import java.lang.classfile.constantpool.MethodRefEntry;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 /**
@@ -60,22 +59,22 @@ public class ClassInfoDumper implements Dumper{
   /**
    * Super class of this class.
    */
-  private String superClass;
+  private Optional<String> superClass;
 
   /**
-   * Interface list of this class.
+   * Interface set of this class.
    */
-  private List<String> interfaceList;
+  private Set<String> interfaceSet;
 
   /**
-   * FieldRef list of this class.
+   * FieldRef set of this class.
    */
-  private List<FieldRefEntry> fieldList;
+  private Set<FieldRefEntry> fieldSet;
 
   /**
-   * MethodRef list of this class.
+   * MethodRef set of this class.
    */
-  private List<MemberRefEntry> methodList;
+  private Set<MemberRefEntry> methodSet;
 
   /**
    * Class collection of this class.
@@ -154,42 +153,38 @@ public class ClassInfoDumper implements Dumper{
   private void initialize(){
     className = getClassNameInJava(clazz.thisClass());
     superClass = clazz.superclass()
-                      .map(this::getClassNameInJava)
-                      .orElse(null);
+                      .map(this::getClassNameInJava);
 
-    interfaceList = clazz.interfaces()
-                         .stream()
-                         .map(this::getClassNameInJava)
-                         .toList();
+    interfaceSet = clazz.interfaces()
+                        .stream()
+                        .map(this::getClassNameInJava)
+                        .collect(Collectors.toSet());
 
-    fieldList = new ArrayList<>();
-    methodList = new ArrayList<>();
+    fieldSet = new HashSet<>();
+    methodSet = new HashSet<>();
     clazz.constantPool()
          .iterator()
          .forEachRemaining(p -> {
             if(p instanceof FieldRefEntry f){
-              fieldList.add(f);
+              fieldSet.add(f);
             }
             else if(p instanceof MethodRefEntry ||
                     p instanceof InterfaceMethodRefEntry){
-              methodList.add((MemberRefEntry)p);
+              methodSet.add((MemberRefEntry)p);
             }
           });
 
     classSet = new HashSet<>();
 
-    if(superClass != null){
-      classSet.add(superClass);
-    }
-
-    interfaceList.forEach(classSet::add);
-    fieldList.forEach(f -> {
+    superClass.ifPresent(classSet::add);
+    interfaceSet.forEach(classSet::add);
+    fieldSet.forEach(f -> {
       getJavaClassFromJNISignature(f.type().stringValue()).ifPresent(classSet::add);
       classSet.add(getClassNameInJava(f.owner()));
     });
-    methodList.stream()
-              .map(m -> getClassNameInJava(m.owner()))
-              .forEach(classSet::add);
+    methodSet.stream()
+             .map(m -> getClassNameInJava(m.owner()))
+             .forEach(classSet::add);
   }
 
   /**
@@ -210,10 +205,10 @@ public class ClassInfoDumper implements Dumper{
       return;
     }
 
-    System.out.println("Super class: " + superClass);
+    System.out.println("Super class: " + superClass.orElse("<None>"));
 
     System.out.println("Interfaces:");
-    interfaceList.forEach(e -> System.out.println("  " + e));
+    interfaceSet.forEach(e -> System.out.println("  " + e));
 
     String clsVerStr = CLASS_VERSION_MAP.getOrDefault(clazz.majorVersion(), "Unknown");
     if(clazz.minorVersion() != 0){
@@ -228,7 +223,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printFieldRefInfo(){
     System.out.println("Field References:");
-    fieldList.forEach(f -> System.out.println(STR."  \{f.type().stringValue()} \{getClassNameInJava(f.owner())}.\{f.name().stringValue()}"));
+    fieldSet.forEach(f -> System.out.println(STR."  \{f.type().stringValue()} \{getClassNameInJava(f.owner())}.\{f.name().stringValue()}"));
   }
 
   /**
@@ -236,7 +231,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printMethodRefInfo(){
     System.out.println("Method References:");
-    methodList.forEach(m -> System.out.println(STR."  \{getClassNameInJava(m.owner())}.\{m.name().stringValue()}\{m.type().stringValue()}"));
+    methodSet.forEach(m -> System.out.println(STR."  \{getClassNameInJava(m.owner())}.\{m.name().stringValue()}\{m.type().stringValue()}"));
   }
 
   /**
@@ -244,33 +239,24 @@ public class ClassInfoDumper implements Dumper{
    */
   @Override
   public void dumpInfo(Option option){
+    boolean shouldShow = option.getTargetSet()
+                               .map(s -> s.stream()
+                                          .anyMatch(className::contains))
+                               .orElse(false) ||
+                         option.getClassFilterSet()
+                               .map(s -> s.stream()
+                                          .anyMatch(t -> classSet.stream()
+                                                                 .anyMatch(c -> c.contains(t))))
+                               .orElse(false) ||
+                         option.getMethodFilterSet()
+                               .map(s -> s.stream()
+                                          .anyMatch(t -> methodSet.stream()
+                                                                  .map(m -> m.name().stringValue())
+                                                                  .anyMatch(m -> m.contains(t))))
+                               .orElse(false);
 
-    if(option.getTargetList() != null){
-      if(!option.getTargetList()
-                .stream()
-                .anyMatch(t -> className.contains(t))){
-        return;
-      }
-    }
-
-    if(option.getClassFilterList() != null){
-      if(!option.getClassFilterList()
-                .stream()
-                .anyMatch(t -> classSet.stream()
-                                       .anyMatch(c -> c.contains(t)))){
-        return;
-      }
-    }
-
-    if(option.getMethodFilterList() != null){
-      if(!option.getMethodFilterList()
-                .stream()
-                .anyMatch(t -> clazz.methods()
-                                    .stream()
-                                    .map(m -> m.methodName().stringValue())
-                                    .anyMatch(m -> m.contains(t)))){
-        return;
-      }
+    if(!shouldShow){
+      return;
     }
 
     printClassInfo(option.isShort());

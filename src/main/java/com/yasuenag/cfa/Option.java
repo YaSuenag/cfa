@@ -25,10 +25,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 
 /**
@@ -37,24 +38,24 @@ import java.util.Properties;
 public class Option{
 
   /**
-   * Target class list.
+   * Target class set.
    */
-  private List<String> targetList;
+  private Set<String> targetSet;
 
   /**
-   * Class filter list.
+   * Class filter set.
    */
-  private List<String> classFilterList;
+  private Set<String> classFilterSet;
 
   /**
-   * Method filter list.
+   * Method filter set.
    */
-  private List<String> methodFilterList;
+  private Set<String> methodFilterSet;
 
   /**
-   * File list to analyze.
+   * File set to analyze.
    */
-  private List<Path> fileList;
+  private Set<Path> fileSet;
 
   /**
    * Whether short output?
@@ -99,11 +100,11 @@ public class Option{
    * @param args Commandline arguments.
    */
   public Option(String[] args) throws IllegalArgumentException{
-    targetList = null;
-    classFilterList = null;
-    methodFilterList = null;
+    targetSet = null;
+    classFilterSet = null;
+    methodFilterSet = null;
     shortOutput = false;
-    fileList = new ArrayList<>();
+    fileSet = new HashSet<>();
 
     Iterator<String> itr = Arrays.asList(args).iterator();
     while(itr.hasNext()){
@@ -121,7 +122,7 @@ public class Option{
             throw new IllegalArgumentException("Invalid target list.");
           }
 
-          targetList = Arrays.asList(itr.next().split(","));
+          targetSet = new HashSet<>(Arrays.asList(itr.next().split(",")));
           break;
 
         case "-c":
@@ -130,7 +131,7 @@ public class Option{
             throw new IllegalArgumentException("Invalid class filter list.");
           }
 
-          classFilterList = Arrays.asList(itr.next().split(","));
+          classFilterSet = new HashSet<>(Arrays.asList(itr.next().split(",")));
           break;
 
         case "-m":
@@ -139,7 +140,7 @@ public class Option{
             throw new IllegalArgumentException("Invalid method filter list.");
           }
 
-          methodFilterList = Arrays.asList(itr.next().split(","));
+          methodFilterSet = new HashSet<>(Arrays.asList(itr.next().split(",")));
           break;
 
         case "-s":
@@ -155,7 +156,7 @@ public class Option{
                                        "Invalid file: " + path.toString());
           }
 
-          fileList.add(path);
+          fileSet.add(path);
 
       }
 
@@ -163,20 +164,20 @@ public class Option{
 
   }
 
-  public List<String> getTargetList(){
-    return targetList;
+  public Optional<Set<String>> getTargetSet(){
+    return Optional.ofNullable(targetSet);
   }
 
-  public List<String> getClassFilterList(){
-    return classFilterList;
+  public Optional<Set<String>> getClassFilterSet(){
+    return Optional.ofNullable(classFilterSet);
   }
 
-  public List<String> getMethodFilterList(){
-    return methodFilterList;
+  public Optional<Set<String>> getMethodFilterSet(){
+    return Optional.ofNullable(methodFilterSet);
   }
 
-  public List<Path> getFileList(){
-    return fileList;
+  public Set<Path> getFileSet(){
+    return fileSet;
   }
 
   public boolean isShort(){
