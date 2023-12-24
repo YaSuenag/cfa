@@ -235,27 +235,35 @@ public class ClassInfoDumper implements Dumper{
   }
 
   /**
+   * Return whether this instance should be processed
+   *
+   * @param option instance of Option which contains filter conditions.
+   * @return true if the class which is contained in this instance should be processed.
+   */
+  public boolean shouldProcess(Option option){
+    return option.getTargetSet()
+                 .map(s -> s.stream()
+                            .anyMatch(className::contains))
+                 .orElse(false) ||
+           option.getClassFilterSet()
+                 .map(s -> s.stream()
+                            .anyMatch(t -> classSet.stream()
+                                                   .anyMatch(c -> c.contains(t))))
+                 .orElse(false) ||
+           option.getMethodFilterSet()
+                 .map(s -> s.stream()
+                            .anyMatch(t -> methodSet.stream()
+                                                    .map(m -> m.name().stringValue())
+                                                    .anyMatch(m -> m.contains(t))))
+                 .orElse(false);
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
   public void dumpInfo(Option option){
-    boolean shouldShow = option.getTargetSet()
-                               .map(s -> s.stream()
-                                          .anyMatch(className::contains))
-                               .orElse(false) ||
-                         option.getClassFilterSet()
-                               .map(s -> s.stream()
-                                          .anyMatch(t -> classSet.stream()
-                                                                 .anyMatch(c -> c.contains(t))))
-                               .orElse(false) ||
-                         option.getMethodFilterSet()
-                               .map(s -> s.stream()
-                                          .anyMatch(t -> methodSet.stream()
-                                                                  .map(m -> m.name().stringValue())
-                                                                  .anyMatch(m -> m.contains(t))))
-                               .orElse(false);
-
-    if(!shouldShow){
+    if(!shouldProcess(option)){
       return;
     }
 
