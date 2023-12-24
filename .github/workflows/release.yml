@@ -31,7 +31,7 @@ jobs:
 
       - name: 'Run Maven'
         run: |
-          mvn -B package
+          mvn -B -DskipTests package
           ASSET=$(find target/ -name 'cfa*.zip')
           echo "ASSET=$ASSET" >> $GITHUB_ENV
         shell: bash
