@@ -65,7 +65,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
-                  <argLine>--add-exports=jdk.jdeps/com.sun.tools.classfile=cfa</argLine>
+                  <argLine>--enable-preview</argLine>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                 </configuration>
             </plugin>
