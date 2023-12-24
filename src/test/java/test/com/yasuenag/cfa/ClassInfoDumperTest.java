@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.yasuenag.cfa.ClassInfoDumper;
+import com.yasuenag.cfa.Option;
 
 
 @SuppressWarnings("missing-explicit-ctor")
@@ -158,6 +159,42 @@ public class ClassInfoDumperTest extends DumperTestBase{
 
     Set<String> expectedSet = Set.of("SubClass", "InterfaceImplementer", "java.io.IOException");
     Assertions.assertEquals(expectedSet, actualSet);
+  }
+
+  @Test
+  public void testTargetFilter() throws Exception{
+    var opt = new Option(new String[]{"-t", "FieldHolder"});
+    ClassInfoDumper info;
+
+    info = new ClassInfoDumper(CLASSES_PATH.resolve("FieldHolder.class"));
+    Assertions.assertTrue(info.shouldProcess(opt), "FieldHolder should be processed.");
+
+    info = new ClassInfoDumper(CLASSES_PATH.resolve("FieldAccessor.class"));
+    Assertions.assertFalse(info.shouldProcess(opt), "FieldAccessor should not be processed.");
+  }
+
+  @Test
+  public void testClassFilter() throws Exception{
+    var opt = new Option(new String[]{"-c", "IOException"});
+    ClassInfoDumper info;
+
+    info = new ClassInfoDumper(CLASSES_PATH.resolve("SubClass.class"));
+    Assertions.assertTrue(info.shouldProcess(opt), "SubClass should be processed.");
+
+    info = new ClassInfoDumper(CLASSES_PATH.resolve("FieldHolder.class"));
+    Assertions.assertFalse(info.shouldProcess(opt), "FieldHolder should not be processed.");
+  }
+
+  @Test
+  public void testMethodFilter() throws Exception{
+    var opt = new Option(new String[]{"-m", "close"});
+    ClassInfoDumper info;
+
+    info = new ClassInfoDumper(CLASSES_PATH.resolve("SubClass.class"));
+    Assertions.assertTrue(info.shouldProcess(opt), "SubClass should be processed.");
+
+    info = new ClassInfoDumper(CLASSES_PATH.resolve("FieldHolder.class"));
+    Assertions.assertFalse(info.shouldProcess(opt), "FieldHolder should not be processed.");
   }
 
 }

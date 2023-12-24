@@ -325,16 +325,17 @@ public class ClassInfoDumper implements Dumper{
   }
 
   /**
-   * {@inheritDoc}
+   * Return whether this instance should be processed
+   *
+   * @param option instance of Option which contains filter conditions.
+   * @return true if the class which is contained in this instance should be processed.
    */
-  @Override
-  public void dumpInfo(Option option){
-
+  public boolean shouldProcess(Option option){
     if(option.getTargetList() != null){
       if(!option.getTargetList()
                 .stream()
                 .anyMatch(t -> className.contains(t))){
-        return;
+        return false;
       }
     }
 
@@ -343,7 +344,7 @@ public class ClassInfoDumper implements Dumper{
                 .stream()
                 .anyMatch(t -> classSet.stream()
                                        .anyMatch(c -> c.contains(t)))){
-        return;
+        return false;
       }
     }
 
@@ -353,8 +354,20 @@ public class ClassInfoDumper implements Dumper{
                 .anyMatch(t -> methodList.stream()
                                          .map(e -> e.toString())
                                          .anyMatch(m -> m.contains(t)))){
-        return;
+        return false;
       }
+    }
+
+    return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void dumpInfo(Option option){
+    if(!shouldProcess(option)){
+      return;
     }
 
     printClassInfo(option.isShort());
