@@ -1,0 +1,32 @@
+name: Maven Build & Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    name: Run Maven on ${{ matrix.os }}
+
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 16
+          cache: maven
+
+      # Test not only testcases but also packaging with jlink
+      - name: Run Maven
+        run: mvn -B package

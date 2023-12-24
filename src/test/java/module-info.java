@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021, 2023, Yasumasa Suenaga
+ * Copyright (C) 2023, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
+module test.cfa{
+  requires cfa;
+  requires java.compiler;
+  requires transitive org.junit.jupiter.api;
 
-@SuppressWarnings("module")
-module cfa{
-    /* For testcases */
-    exports com.yasuenag.cfa to test.cfa;
-    opens com.yasuenag.cfa to test.cfa;
+  exports test.com.yasuenag.cfa;
 }
