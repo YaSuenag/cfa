@@ -99,6 +99,7 @@ public class Option{
    *
    * @param args Commandline arguments.
    */
+  @SuppressWarnings("fallthrough")
   public Option(String[] args) throws IllegalArgumentException{
     targetSet = null;
     classFilterSet = null;
