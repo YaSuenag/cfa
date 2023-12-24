@@ -1,4 +1,5 @@
 Class File Analyzer (CFA).  
+![CI result](../../actions/workflows/ci.yml/badge.svg)
 ![CodeQL](../../workflows/CodeQL/badge.svg)
 ===================
 
