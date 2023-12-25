@@ -18,7 +18,7 @@
  */
 package test.com.yasuenag.cfa;
 
-import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,27 +32,27 @@ public class OptionTest extends DumperTestBase{
   @Test
   public void testTargetFilter(){
     var opt = new Option(new String[]{"-t", "Foo,Bar"});
-    Assertions.assertEquals(List.of("Foo", "Bar"), opt.getTargetList());
-    Assertions.assertNull(opt.getClassFilterList());
-    Assertions.assertNull(opt.getMethodFilterList());
+    Assertions.assertEquals(Set.of("Foo", "Bar"), opt.getTargetSet().get());
+    Assertions.assertFalse(opt.getClassFilterSet().isPresent());
+    Assertions.assertFalse(opt.getMethodFilterSet().isPresent());
     Assertions.assertFalse(opt.isShort());
   }
 
   @Test
   public void testClassFilter(){
     var opt = new Option(new String[]{"-c", "Foo,Bar"});
-    Assertions.assertEquals(List.of("Foo", "Bar"), opt.getClassFilterList());
-    Assertions.assertNull(opt.getTargetList());
-    Assertions.assertNull(opt.getMethodFilterList());
+    Assertions.assertEquals(Set.of("Foo", "Bar"), opt.getClassFilterSet().get());
+    Assertions.assertFalse(opt.getTargetSet().isPresent());
+    Assertions.assertFalse(opt.getMethodFilterSet().isPresent());
     Assertions.assertFalse(opt.isShort());
   }
 
   @Test
   public void testMethodFilter(){
     var opt = new Option(new String[]{"-m", "foo,bar"});
-    Assertions.assertEquals(List.of("foo", "bar"), opt.getMethodFilterList());
-    Assertions.assertNull(opt.getTargetList());
-    Assertions.assertNull(opt.getClassFilterList());
+    Assertions.assertEquals(Set.of("foo", "bar"), opt.getMethodFilterSet().get());
+    Assertions.assertFalse(opt.getTargetSet().isPresent());
+    Assertions.assertFalse(opt.getClassFilterSet().isPresent());
     Assertions.assertFalse(opt.isShort());
   }
 
@@ -60,18 +60,18 @@ public class OptionTest extends DumperTestBase{
   public void testIsShort(){
     var opt = new Option(new String[]{"-s"});
     Assertions.assertTrue(opt.isShort());
-    Assertions.assertNull(opt.getTargetList());
-    Assertions.assertNull(opt.getClassFilterList());
-    Assertions.assertNull(opt.getMethodFilterList());
+    Assertions.assertFalse(opt.getTargetSet().isPresent());
+    Assertions.assertFalse(opt.getClassFilterSet().isPresent());
+    Assertions.assertFalse(opt.getMethodFilterSet().isPresent());
   }
 
   @Test
   public void testTargetFiles(){
     var opt = new Option(new String[]{CLASSES_PATH.toString(), TEST_JAR_PATH.toString()});
-    Assertions.assertIterableEquals(List.of(CLASSES_PATH, TEST_JAR_PATH), opt.getFileList());
-    Assertions.assertNull(opt.getTargetList());
-    Assertions.assertNull(opt.getClassFilterList());
-    Assertions.assertNull(opt.getMethodFilterList());
+    Assertions.assertEquals(Set.of(CLASSES_PATH, TEST_JAR_PATH), opt.getFileSet());
+    Assertions.assertFalse(opt.getTargetSet().isPresent());
+    Assertions.assertFalse(opt.getClassFilterSet().isPresent());
+    Assertions.assertFalse(opt.getMethodFilterSet().isPresent());
     Assertions.assertFalse(opt.isShort());
 
     /* Test for invalid file */
@@ -85,11 +85,11 @@ public class OptionTest extends DumperTestBase{
                                       "-m", "foo,bar",
                                       "-s",
                                       CLASSES_PATH.toString(), TEST_JAR_PATH.toString()});
-    Assertions.assertEquals(List.of("Foo", "Bar"), opt.getTargetList());
-    Assertions.assertEquals(List.of("Baz", "Qux"), opt.getClassFilterList());
-    Assertions.assertEquals(List.of("foo", "bar"), opt.getMethodFilterList());
+    Assertions.assertEquals(Set.of("Foo", "Bar"), opt.getTargetSet().get());
+    Assertions.assertEquals(Set.of("Baz", "Qux"), opt.getClassFilterSet().get());
+    Assertions.assertEquals(Set.of("foo", "bar"), opt.getMethodFilterSet().get());
     Assertions.assertTrue(opt.isShort());
-    Assertions.assertIterableEquals(List.of(CLASSES_PATH, TEST_JAR_PATH), opt.getFileList());
+    Assertions.assertEquals(Set.of(CLASSES_PATH, TEST_JAR_PATH), opt.getFileSet());
   }
 
 }
