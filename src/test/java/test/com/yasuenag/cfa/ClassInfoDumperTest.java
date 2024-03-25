@@ -18,8 +18,10 @@
  */
 package test.com.yasuenag.cfa;
 
+import java.lang.classfile.constantpool.FieldRefEntry;
+import java.lang.classfile.constantpool.MemberRefEntry;
 import java.nio.file.Files;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
@@ -74,14 +76,15 @@ public class ClassInfoDumperTest extends DumperTestBase{
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testSuperClass() throws Exception{
     var info = new ClassInfoDumper(CLASSES_PATH.resolve("SubClass.class"));
 
     var superClassField = ClassInfoDumper.class.getDeclaredField("superClass");
     superClassField.setAccessible(true);
-    String actualSuperClass = (String)superClassField.get(info);
-    Assertions.assertEquals("InterfaceImplementer", actualSuperClass);
+    Optional<String> actualSuperClass = (Optional<String>)superClassField.get(info);
+    Assertions.assertEquals("InterfaceImplementer", actualSuperClass.get());
   }
 
   @SuppressWarnings("unchecked")
@@ -89,12 +92,12 @@ public class ClassInfoDumperTest extends DumperTestBase{
   public void testInterface() throws Exception{
     var info = new ClassInfoDumper(CLASSES_PATH.resolve("InterfaceImplementer.class"));
 
-    var interfaceListField = ClassInfoDumper.class.getDeclaredField("interfaceList");
-    interfaceListField.setAccessible(true);
-    List<String> actualList = (List<String>)interfaceListField.get(info);
+    var interfaceSetField = ClassInfoDumper.class.getDeclaredField("interfaceSet");
+    interfaceSetField.setAccessible(true);
+    Set<String> actualSet = (Set<String>)interfaceSetField.get(info);
 
-    List<String> expectedList = List.of("java.io.Closeable");
-    Assertions.assertIterableEquals(expectedList, actualList);
+    Set<String> expectedSet = Set.of("java.io.Closeable");
+    Assertions.assertIterableEquals(expectedSet, actualSet);
   }
 
   @SuppressWarnings("unchecked")
@@ -102,15 +105,15 @@ public class ClassInfoDumperTest extends DumperTestBase{
   public void testFieldRef() throws Exception{
     var info = new ClassInfoDumper(CLASSES_PATH.resolve("FieldAccessor.class"));
 
-    var fieldListField = ClassInfoDumper.class.getDeclaredField("fieldList");
-    fieldListField.setAccessible(true);
-    List<ClassInfoDumper.FieldInfo> actualList = (List<ClassInfoDumper.FieldInfo>)fieldListField.get(info);
-    Assertions.assertEquals(actualList.size(), 1);
+    var fieldSetField = ClassInfoDumper.class.getDeclaredField("fieldSet");
+    fieldSetField.setAccessible(true);
+    Set<FieldRefEntry> actualSet = (Set<FieldRefEntry>)fieldSetField.get(info);
+    Assertions.assertEquals(actualSet.size(), 1);
 
-    ClassInfoDumper.FieldInfo fieldInfo = actualList.get(0);
-    Assertions.assertEquals("Ljava.lang.String;", fieldInfo.getType());
-    Assertions.assertEquals("FieldHolder", fieldInfo.getClassName());
-    Assertions.assertEquals("testField", fieldInfo.getName());
+    FieldRefEntry fieldInfo = actualSet.iterator().next();
+    Assertions.assertEquals("Ljava/lang/String;", fieldInfo.type().stringValue());
+    Assertions.assertEquals("FieldHolder", fieldInfo.owner().name().stringValue());
+    Assertions.assertEquals("testField", fieldInfo.name().stringValue());
   }
 
   @SuppressWarnings("unchecked")
@@ -118,15 +121,15 @@ public class ClassInfoDumperTest extends DumperTestBase{
   public void testMethodRef() throws Exception{
     var info = new ClassInfoDumper(CLASSES_PATH.resolve("MethodCaller.class"));
 
-    var methodListField = ClassInfoDumper.class.getDeclaredField("methodList");
-    methodListField.setAccessible(true);
-    List<ClassInfoDumper.MethodInfo> actualList = (List<ClassInfoDumper.MethodInfo>)methodListField.get(info);
-    Assertions.assertEquals(actualList.size(), 3);
+    var methodSetField = ClassInfoDumper.class.getDeclaredField("methodSet");
+    methodSetField.setAccessible(true);
+    Set<MemberRefEntry> actualSet = (Set<MemberRefEntry>)methodSetField.get(info);
+    Assertions.assertEquals(actualSet.size(), 3);
 
-    for(ClassInfoDumper.MethodInfo methodInfo : actualList){
-      Assertions.assertTrue((methodInfo.getClassName().equals("java.lang.Object") && methodInfo.getName().equals("<init>") && methodInfo.getSignature().equals("()V")) ||
-                            (methodInfo.getClassName().equals("MethodHolder") && methodInfo.getName().equals("<init>") && methodInfo.getSignature().equals("()V")) ||
-                            (methodInfo.getClassName().equals("MethodHolder") && methodInfo.getName().equals("testMethod") && methodInfo.getSignature().equals("()I")),
+    for(var methodInfo : actualSet){
+      Assertions.assertTrue((methodInfo.owner().name().equalsString("java/lang/Object") && methodInfo.name().equalsString("<init>") && methodInfo.type().equalsString("()V")) ||
+                            (methodInfo.owner().name().equalsString("MethodHolder") && methodInfo.name().equalsString("<init>") && methodInfo.type().equalsString("()V")) ||
+                            (methodInfo.owner().name().equalsString("MethodHolder") && methodInfo.name().equalsString("testMethod") && methodInfo.type().equalsString("()I")),
                             "Unexpected method: " + methodInfo.toString());
     }
   }
@@ -136,14 +139,14 @@ public class ClassInfoDumperTest extends DumperTestBase{
   public void testInterfaceMethodRef() throws Exception{
     var info = new ClassInfoDumper(CLASSES_PATH.resolve("InterfaceMethodCaller.class"));
 
-    var methodListField = ClassInfoDumper.class.getDeclaredField("methodList");
-    methodListField.setAccessible(true);
-    List<ClassInfoDumper.MethodInfo> actualList = (List<ClassInfoDumper.MethodInfo>)methodListField.get(info);
-    Assertions.assertEquals(actualList.size(), 2);
+    var methodSetField = ClassInfoDumper.class.getDeclaredField("methodSet");
+    methodSetField.setAccessible(true);
+    Set<MemberRefEntry> actualSet = (Set<MemberRefEntry>)methodSetField.get(info);
+    Assertions.assertEquals(actualSet.size(), 2);
 
-    for(ClassInfoDumper.MethodInfo methodInfo : actualList){
-      Assertions.assertTrue((methodInfo.getClassName().equals("java.lang.Object") && methodInfo.getName().equals("<init>") && methodInfo.getSignature().equals("()V")) ||
-                            (methodInfo.getClassName().equals("java.io.Closeable") && methodInfo.getName().equals("close") && methodInfo.getSignature().equals("()V")),
+    for(var methodInfo : actualSet){
+      Assertions.assertTrue((methodInfo.owner().name().equalsString("java/lang/Object") && methodInfo.name().equalsString("<init>") && methodInfo.type().equalsString("()V")) ||
+                            (methodInfo.owner().name().equalsString("java/io/Closeable") && methodInfo.name().equalsString("close") && methodInfo.type().equalsString("()V")),
                             "Unexpected method: " + methodInfo.toString());
     }
   }

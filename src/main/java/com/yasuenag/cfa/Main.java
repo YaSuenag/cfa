@@ -36,7 +36,7 @@ public class Main{
     }
 
     DumperChooser chooser = new DumperChooser();
-    option.getFileList()
+    option.getFileSet()
           .stream()
           .map(chooser)
           .filter(Objects::nonNull)

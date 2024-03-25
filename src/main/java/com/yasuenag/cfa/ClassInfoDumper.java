@@ -21,17 +21,19 @@ package com.yasuenag.cfa;
 import java.nio.file.Path;
 import java.io.InputStream;
 import java.io.IOException;
-import java.util.List;
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.ClassModel;
+import java.lang.classfile.constantpool.ClassEntry;
+import java.lang.classfile.constantpool.FieldRefEntry;
+import java.lang.classfile.constantpool.InterfaceMethodRefEntry;
+import java.lang.classfile.constantpool.MemberRefEntry;
+import java.lang.classfile.constantpool.MethodRefEntry;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.sun.tools.classfile.ClassFile;
-import com.sun.tools.classfile.ConstantPool;
-import com.sun.tools.classfile.ConstantPoolException;
 
 
 /**
@@ -40,109 +42,9 @@ import com.sun.tools.classfile.ConstantPoolException;
 public class ClassInfoDumper implements Dumper{
 
   /**
-   * Field information.
+   * ClassModel of the class.
    */
-  public static class FieldInfo{
-
-    /**
-     * Field type.
-     */
-    private String type;
-
-    /**
-     * Class which is included this field.
-     */
-    private String className;
-
-    /**
-     * Field name.
-     */
-    private String name;
-
-    public FieldInfo(ConstantPool.CPRefInfo ref){
-      try{
-        type = ref.getNameAndTypeInfo().getType().replace('/', '.');
-        className = ref.getClassName().replace('/', '.');
-        name = ref.getNameAndTypeInfo().getName();
-      }
-      catch(ConstantPoolException e){
-        throw new RuntimeException(e);
-      }
-    }
-
-    public String getType(){
-      return type;
-    }
-
-    public String getClassName(){
-      return className;
-    }
-
-    public String getName(){
-      return name;
-    }
-
-    @Override
-    public String toString(){
-      return type + " " + className + "." + name;
-    }
-
-  }
-
-  /**
-   * Method information.
-   */
-  public static class MethodInfo{
-
-    /**
-     * Class which is included this method.
-     */
-    private String className;
-
-    /**
-     * Method name.
-     */
-    private String name;
-
-    /**
-     * Method signature.
-     */
-    private String signature;
-
-    public MethodInfo(ConstantPool.CPRefInfo ref){
-      try{
-        className = ref.getClassName().replace('/', '.');
-        name = ref.getNameAndTypeInfo().getName();
-        signature = ref.getNameAndTypeInfo().getType();
-      }
-      catch(ConstantPoolException e){
-        throw new RuntimeException(e);
-      }
-    }
-
-    public String getClassName(){
-      return className;
-    }
-
-    public String getName(){
-      return name;
-    }
-
-    public String getSignature(){
-      return signature;
-    }
-
-    @Override
-    public String toString(){
-      return className + "." + name + signature;
-    }
-
-  }
-
-  /**
-   * ClassFile instance of this class.
-   */
-  private ClassFile clazz;
+  private ClassModel clazz;
 
   /**
    * File name which is included in this class.
@@ -157,27 +59,32 @@ public class ClassInfoDumper implements Dumper{
   /**
    * Super class of this class.
    */
-  private String superClass;
+  private Optional<String> superClass;
 
   /**
-   * Interface list of this class.
+   * Interface set of this class.
    */
-  private List<String> interfaceList;
+  private Set<String> interfaceSet;
 
   /**
-   * Field list of this class.
+   * FieldRef set of this class.
    */
-  private List<FieldInfo> fieldList;
+  private Set<FieldRefEntry> fieldSet;
 
   /**
-   * Method list of this class.
+   * MethodRef set of this class.
    */
-  private List<MethodInfo> methodList;
+  private Set<MemberRefEntry> methodSet;
 
   /**
    * Class collection of this class.
    */
   private Set<String> classSet;
+
+  /**
+   * Pattern for JNI class signature
+   */
+  private static final Pattern JNISIG_PATTERN = Pattern.compile("^L(.+);$");
 
   private static final Map<Integer, String> CLASS_VERSION_MAP = Map.ofEntries(
                                                  Map.entry(46, "Java 1.2"),
@@ -199,7 +106,8 @@ public class ClassInfoDumper implements Dumper{
                                                  Map.entry(62, "Java 18"),
                                                  Map.entry(63, "Java 19"),
                                                  Map.entry(64, "Java 20"),
-                                                 Map.entry(65, "Java 21")
+                                                 Map.entry(65, "Java 21"),
+                                                 Map.entry(66, "Java 22")
                                             );
 
   /**
@@ -207,8 +115,8 @@ public class ClassInfoDumper implements Dumper{
    *
    * @param path Path of class file.
    */
-  public ClassInfoDumper(Path path) throws IOException, ConstantPoolException{
-    clazz = ClassFile.read(path);
+  public ClassInfoDumper(Path path) throws IOException{
+    clazz = ClassFile.of().parse(path);
     fname = path.toString();
     initialize();
   }
@@ -219,62 +127,64 @@ public class ClassInfoDumper implements Dumper{
    * @param in InputStream of class.
    * @param fname File name or archive of class.
    */
-  public ClassInfoDumper(InputStream in, String fname)
-                               throws IOException, ConstantPoolException{
-    clazz = ClassFile.read(in);
+  public ClassInfoDumper(InputStream in, String fname) throws IOException{
+    clazz = ClassFile.of().parse(in.readAllBytes());
     this.fname = fname;
     initialize();
+  }
+
+  private String getClassNameInJava(ClassEntry c){
+    return getClassNameInJava(c.asInternalName());
+  }
+
+  private String getClassNameInJava(String c){
+    return c.replace('/', '.');
+  }
+
+  private Optional<String> getJavaClassFromJNISignature(String sig){
+    var matcher = JNISIG_PATTERN.matcher(sig);
+    return matcher.matches() ? Optional.of(getClassNameInJava(matcher.group(1)))
+                             : Optional.empty();
   }
 
   /**
    * Initialize class information.
    */
   private void initialize(){
+    className = getClassNameInJava(clazz.thisClass());
+    superClass = clazz.superclass()
+                      .map(this::getClassNameInJava);
 
-    try{
-      className = clazz.getName().replace('/', '.');
-      superClass = clazz.getSuperclassName().replace('/', '.');
-    }
-    catch(ConstantPoolException e){
-      throw new RuntimeException(e);
-    }
+    interfaceSet = clazz.interfaces()
+                        .stream()
+                        .map(this::getClassNameInJava)
+                        .collect(Collectors.toSet());
 
-    interfaceList = IntStream.range(0, clazz.interfaces.length)
-                             .mapToObj(i -> {
-                                              try{
-                                                return clazz.getInterfaceName(i);
-                                              }
-                                              catch(ConstantPoolException e){
-                                                throw new RuntimeException(e);
-                                              }
-                                            })
-                             .map(c -> c.replace('/', '.'))
-                             .collect(Collectors.toList());
-    fieldList = StreamSupport.stream(
-                          clazz.constant_pool.entries().spliterator(), false)
-                  .filter(p -> p instanceof ConstantPool.CONSTANT_Fieldref_info)
-                  .map(p -> new FieldInfo((ConstantPool.CPRefInfo)p))
-                  .collect(Collectors.toList());
-    methodList = StreamSupport.stream(
-                          clazz.constant_pool.entries().spliterator(), false)
-                  .filter(p -> 
-                   (p instanceof ConstantPool.CONSTANT_Methodref_info) ||
-                   (p instanceof ConstantPool.CONSTANT_InterfaceMethodref_info))
-                  .map(p -> new MethodInfo((ConstantPool.CPRefInfo)p))
-                  .collect(Collectors.toList());
+    fieldSet = new HashSet<>();
+    methodSet = new HashSet<>();
+    clazz.constantPool()
+         .iterator()
+         .forEachRemaining(p -> {
+            if(p instanceof FieldRefEntry f){
+              fieldSet.add(f);
+            }
+            else if(p instanceof MethodRefEntry ||
+                    p instanceof InterfaceMethodRefEntry){
+              methodSet.add((MemberRefEntry)p);
+            }
+          });
 
     classSet = new HashSet<>();
 
-    if(superClass != null){
-      classSet.add(superClass);
-    }
-
-    interfaceList.forEach(classSet::add);
-    fieldList.forEach(e -> {
-                             classSet.add(e.getType());
-                             classSet.add(e.getClassName());
-                           });
-    methodList.forEach(e -> classSet.add(e.getClassName()));
+    superClass.ifPresent(classSet::add);
+    interfaceSet.forEach(classSet::add);
+    fieldSet.forEach(f -> {
+      getJavaClassFromJNISignature(f.type().stringValue()).ifPresent(classSet::add);
+      classSet.add(getClassNameInJava(f.owner()));
+    });
+    methodSet.stream()
+             .map(m -> getClassNameInJava(m.owner()))
+             .forEach(classSet::add);
   }
 
   /**
@@ -295,17 +205,17 @@ public class ClassInfoDumper implements Dumper{
       return;
     }
 
-    System.out.println("Super class: " + superClass);
+    System.out.println("Super class: " + superClass.orElse("<None>"));
 
     System.out.println("Interfaces:");
-    interfaceList.forEach(e -> System.out.println("  " + e));
+    interfaceSet.forEach(e -> System.out.println("  " + e));
 
-    String clsVerStr = CLASS_VERSION_MAP.getOrDefault(clazz.major_version, "Unknown");
-    if(clazz.minor_version != 0){
-      clsVerStr += clazz.minor_version == 65535 ? " (Preview)" : " (Unknown minor version)";
+    String clsVerStr = CLASS_VERSION_MAP.getOrDefault(clazz.majorVersion(), "Unknown");
+    if(clazz.minorVersion() != 0){
+      clsVerStr += clazz.minorVersion() == 65535 ? " (Preview)" : " (Unknown minor version)";
     }
     System.out.println(String.format("Class version: %d.%d (%s)",
-                                     clazz.major_version, clazz.minor_version, clsVerStr));
+                                     clazz.majorVersion(), clazz.minorVersion(), clsVerStr));
   }
 
   /**
@@ -313,7 +223,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printFieldRefInfo(){
     System.out.println("Field References:");
-    fieldList.forEach(e -> System.out.println("  " + e.toString()));
+    fieldSet.forEach(f -> System.out.println(STR."  \{f.type().stringValue()} \{getClassNameInJava(f.owner())}.\{f.name().stringValue()}"));
   }
 
   /**
@@ -321,7 +231,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printMethodRefInfo(){
     System.out.println("Method References:");
-    methodList.forEach(e -> System.out.println("  " + e.toString()));
+    methodSet.forEach(m -> System.out.println(STR."  \{getClassNameInJava(m.owner())}.\{m.name().stringValue()}\{m.type().stringValue()}"));
   }
 
   /**
@@ -331,34 +241,21 @@ public class ClassInfoDumper implements Dumper{
    * @return true if the class which is contained in this instance should be processed.
    */
   public boolean shouldProcess(Option option){
-    if(option.getTargetList() != null){
-      if(!option.getTargetList()
-                .stream()
-                .anyMatch(t -> className.contains(t))){
-        return false;
-      }
-    }
-
-    if(option.getClassFilterList() != null){
-      if(!option.getClassFilterList()
-                .stream()
-                .anyMatch(t -> classSet.stream()
-                                       .anyMatch(c -> c.contains(t)))){
-        return false;
-      }
-    }
-
-    if(option.getMethodFilterList() != null){
-      if(!option.getMethodFilterList()
-                .stream()
-                .anyMatch(t -> methodList.stream()
-                                         .map(e -> e.toString())
-                                         .anyMatch(m -> m.contains(t)))){
-        return false;
-      }
-    }
-
-    return true;
+    return option.getTargetSet()
+                 .map(s -> s.stream()
+                            .anyMatch(className::contains))
+                 .orElse(false) ||
+           option.getClassFilterSet()
+                 .map(s -> s.stream()
+                            .anyMatch(t -> classSet.stream()
+                                                   .anyMatch(c -> c.contains(t))))
+                 .orElse(false) ||
+           option.getMethodFilterSet()
+                 .map(s -> s.stream()
+                            .anyMatch(t -> methodSet.stream()
+                                                    .map(m -> m.name().stringValue())
+                                                    .anyMatch(m -> m.contains(t))))
+                 .orElse(false);
   }
 
   /**

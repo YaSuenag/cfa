@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2021, Yasumasa Suenaga
+ * Copyright (C) 2015, 2023, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@ import java.util.function.Function;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import com.sun.tools.classfile.ConstantPoolException;
 
 
 public class DumperChooser implements Function<Path, Dumper>{
@@ -45,9 +44,6 @@ public class DumperChooser implements Function<Path, Dumper>{
     }
     catch(IOException e){
       throw new UncheckedIOException(e);
-    }
-    catch(ConstantPoolException e){
-      throw new RuntimeException(e);
     }
   }
 

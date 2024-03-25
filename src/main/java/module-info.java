@@ -19,8 +19,6 @@
 
 @SuppressWarnings("module")
 module cfa{
-    requires jdk.jdeps;
-
     /* For testcases */
     exports com.yasuenag.cfa to test.cfa;
     opens com.yasuenag.cfa to test.cfa;
