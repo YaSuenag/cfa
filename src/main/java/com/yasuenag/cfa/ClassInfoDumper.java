@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2023, Yasumasa Suenaga
+ * Copyright (C) 2015, 2024, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -223,7 +223,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printFieldRefInfo(){
     System.out.println("Field References:");
-    fieldSet.forEach(f -> System.out.println(STR."  \{f.type().stringValue()} \{getClassNameInJava(f.owner())}.\{f.name().stringValue()}"));
+    fieldSet.forEach(f -> System.out.printf("  %s %s.%s\n", f.type().stringValue(), getClassNameInJava(f.owner()), f.name().stringValue()));
   }
 
   /**
@@ -231,7 +231,7 @@ public class ClassInfoDumper implements Dumper{
    */
   public void printMethodRefInfo(){
     System.out.println("Method References:");
-    methodSet.forEach(m -> System.out.println(STR."  \{getClassNameInJava(m.owner())}.\{m.name().stringValue()}\{m.type().stringValue()}"));
+    methodSet.forEach(m -> System.out.printf("  %s.%s%s\n", getClassNameInJava(m.owner()), m.name().stringValue(), m.type().stringValue()));
   }
 
   /**
