@@ -26,7 +26,7 @@
 
     <groupId>com.yasuenag</groupId>
     <artifactId>cfa</artifactId>
-    <version>0.4.1</version>
+    <version>0.4.1+1</version>
     <name>CFA</name>
 
     <properties>
