@@ -9,7 +9,7 @@ Analyze class files from ConstantPool.
 
 ## Requirements
 
-* JDK 22 or later
+* JDK 23 or later
 * Maven 3.6.3 or later
 
 ## Build

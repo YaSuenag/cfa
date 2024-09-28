@@ -34,8 +34,8 @@
         <imageName>${project.artifactId}-${project.version}</imageName>
         <buildYear>${maven.build.timestamp}</buildYear>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
+        <maven.compiler.source>23</maven.compiler.source>
+        <maven.compiler.target>23</maven.compiler.target>
     </properties>
 
     <dependencies>

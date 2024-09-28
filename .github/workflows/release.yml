@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 22
+          java-version: 23
           cache: 'maven'
 
       - name: 'Run Maven'
@@ -45,7 +45,7 @@ jobs:
         name: Build for Linux AArch64
         run: |
           rm -fR target/perfreader-*/
-          docker run -i --rm -v .:/workspace:Z arm64v8/maven:3.9-eclipse-temurin-22 bash -c 'cd /workspace && mvn -B -DskipTests package'
+          docker run -i --rm -v .:/workspace:Z arm64v8/maven:3.9-eclipse-temurin-23 bash -c 'cd /workspace && mvn -B -DskipTests package'
 
       - name: 'Upload Release Asset'
         uses: AButler/upload-release-assets@v3.0
