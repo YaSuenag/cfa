@@ -28,6 +28,7 @@
     <artifactId>cfa</artifactId>
     <version>0.4.1+1</version>
     <name>CFA</name>
+    <packaging>jlink</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -72,23 +73,8 @@
                 <artifactId>maven-jlink-plugin</artifactId>
                 <version>3.1.0</version>
                 <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>jlink</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <classifier>${package.os.name}-${os.arch}</classifier>
-                    <modulePaths>
-                        <modulePath>${project.build.outputDirectory}</modulePath>
-                    </modulePaths>
-                    <addModules>
-                        <addModule>cfa</addModule>
-                    </addModules>
                     <launcher>${project.artifactId}=cfa/com.yasuenag.cfa.Main</launcher>
                     <noHeaderFiles>true</noHeaderFiles>
                     <noManPages>true</noManPages>
