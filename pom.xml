@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  Copyright (C) 2021, 2024, Yasumasa Suenaga
+  Copyright (C) 2021, 2025, Yasumasa Suenaga
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
     <artifactId>cfa</artifactId>
     <version>0.4.1+1</version>
     <name>CFA</name>
+    <packaging>jlink</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -74,25 +75,10 @@
                 <artifactId>maven-jlink-plugin</artifactId>
                 <version>3.1.0</version>
                 <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>jlink</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <classifier>${package.os.name}-${os.arch}</classifier>
-                    <modulePaths>
-                        <modulePath>${project.build.outputDirectory}</modulePath>
-                    </modulePaths>
-                    <addModules>
-                        <addModule>cfa</addModule>
-                    </addModules>
                     <addOptions>
-                        <addOption>--enable-preview</addOption>
+                        <option>--enable-preview</option>
                     </addOptions>
                     <launcher>${project.artifactId}=cfa/com.yasuenag.cfa.Main</launcher>
                     <noHeaderFiles>true</noHeaderFiles>
