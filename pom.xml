@@ -34,8 +34,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <buildYear>${maven.build.timestamp}</buildYear>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -57,7 +57,6 @@
                     <compilerArgs>
                         <arg>-Xlint:all</arg>
                     </compilerArgs>
-                    <enablePreview>true</enablePreview>
                 </configuration>
             </plugin>
             <plugin>
@@ -65,7 +64,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.3</version>
                 <configuration>
-                  <argLine>--enable-preview</argLine>
                   <workingDirectory>${project.build.directory}</workingDirectory>
                 </configuration>
             </plugin>
@@ -76,9 +74,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <classifier>${package.os.name}-${os.arch}</classifier>
-                    <addOptions>
-                        <option>--enable-preview</option>
-                    </addOptions>
                     <launcher>${project.artifactId}=cfa/com.yasuenag.cfa.Main</launcher>
                     <noHeaderFiles>true</noHeaderFiles>
                     <noManPages>true</noManPages>
