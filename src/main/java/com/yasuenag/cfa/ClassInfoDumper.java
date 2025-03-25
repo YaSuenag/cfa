@@ -1,7 +1,7 @@
 package com.yasuenag.cfa;
 
 /*
- * Copyright (C) 2015, 2024, Yasumasa Suenaga
+ * Copyright (C) 2015, 2025, Yasumasa Suenaga
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,7 +108,8 @@ public class ClassInfoDumper implements Dumper{
                                                  Map.entry(64, "Java 20"),
                                                  Map.entry(65, "Java 21"),
                                                  Map.entry(66, "Java 22"),
-                                                 Map.entry(67, "Java 23")
+                                                 Map.entry(67, "Java 23"),
+                                                 Map.entry(68, "Java 24")
                                             );
 
   /**
