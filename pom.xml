@@ -32,7 +32,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <imageName>${project.artifactId}-${project.version}</imageName>
         <buildYear>${maven.build.timestamp}</buildYear>
         <maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
         <maven.compiler.source>24</maven.compiler.source>
