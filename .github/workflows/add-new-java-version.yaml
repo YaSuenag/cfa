@@ -1,0 +1,78 @@
+name: Add new Java / class file version to CFA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  determine-java-version:
+    runs-on: ubuntu-latest
+    name: Determine Java version which should be added
+    outputs:
+      new-version: ${{ steps.determine-version.outputs.value }}
+      outcome: ${{ steps.outcome.outputs.value }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: oracle
+          java-version: 24
+          cache: maven
+      - name: Build without test run
+        run: mvn -B -DskipTests package
+      - name: Get new Java version
+        id: determine-version
+        run: |
+          NEW_JAVA_VER=`echo 'println(Integer.valueOf(com.yasuenag.cfa.ClassInfoDumper.CLASS_VERSION_MAP.entrySet().stream().max(java.util.Map.Entry.comparingByKey()).get().getValue()) + 1)' | jshell -s --class-path target/classes PRINTING -`
+          echo "value=$NEW_JAVA_VER" >> "$GITHUB_OUTPUT"
+      - name: Try to download new Java
+        id: try-to-download
+        uses: actions/setup-java@v4
+        with:
+          distribution: oracle
+          java-version: ${{ steps.determine-version.outputs.value }}
+          cache: maven
+        continue-on-error: true
+      - name: Set outcome
+        id: outcome
+        run: echo "value=${{ steps.try-to-download.outcome }}" >> "$GITHUB_OUTPUT"
+      - name: Upload artifacts
+        id: upload-artifacts
+        if: ${{ steps.outcome.outputs.value == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cfa-tmp
+          path: ${{ github.workspace }}
+
+  patch:
+    runs-on: ubuntu-latest
+    name: Patch new Java version which should be added to CFA
+    needs: determine-java-version
+    if: ${{ needs.determine-java-version.outputs.outcome == 'success' }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cfa-tmp
+          path: ${{ github.workspace }}
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: oracle
+          java-version: ${{ needs.determine-java-version.outputs.new-version }}
+          cache: maven
+      - name: Detect new class version
+        id: detect-new-class-ver
+        run: |
+          NEW_CLASS_VER=`echo 'println(java.lang.reflect.ClassFileFormatVersion.latest().major())' | jshell -s PRINTING -`
+          echo "value=$NEW_CLASS_VER" >> "$GITHUB_OUTPUT"
+      - name: Add new entry
+        run: |
+          sed -i 's|^\( \+\)/\* ADD NEW VERSION HERE \*/$|\1, Map.entry(${{ steps.detect-new-class-ver.outputs.value }}, "${{ needs.determine-java-version.outputs.new-version }}")\n\0|' src/main/java/com/yasuenag/cfa/ClassInfoDumper.java
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: Add Java ${{ needs.determine-java-version.outputs.new-version }}
+          title: Add Java ${{ needs.determine-java-version.outputs.new-version }}
+          delete-branch: true
+          reviewers: YaSuenag
