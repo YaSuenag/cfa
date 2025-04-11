@@ -86,31 +86,32 @@ public class ClassInfoDumper implements Dumper{
    */
   private static final Pattern JNISIG_PATTERN = Pattern.compile("^L(.+);$");
 
-  private static final Map<Integer, String> CLASS_VERSION_MAP = Map.ofEntries(
-                                                 Map.entry(46, "Java 1.2"),
-                                                 Map.entry(47, "Java 1.3"),
-                                                 Map.entry(48, "Java 1.4"),
-                                                 Map.entry(49, "Java 1.5"),
-                                                 Map.entry(50, "Java 6"),
-                                                 Map.entry(51, "Java 7"),
-                                                 Map.entry(52, "Java 8"),
-                                                 Map.entry(53, "Java 9"),
-                                                 Map.entry(54, "Java 10"),
-                                                 Map.entry(55, "Java 11"),
-                                                 Map.entry(56, "Java 12"),
-                                                 Map.entry(57, "Java 13"),
-                                                 Map.entry(58, "Java 14"),
-                                                 Map.entry(59, "Java 15"),
-                                                 Map.entry(60, "Java 16"),
-                                                 Map.entry(61, "Java 17"),
-                                                 Map.entry(62, "Java 18"),
-                                                 Map.entry(63, "Java 19"),
-                                                 Map.entry(64, "Java 20"),
-                                                 Map.entry(65, "Java 21"),
-                                                 Map.entry(66, "Java 22"),
-                                                 Map.entry(67, "Java 23"),
-                                                 Map.entry(68, "Java 24")
-                                            );
+  public static final Map<Integer, String> CLASS_VERSION_MAP = Map.ofEntries(
+                                                 Map.entry(46, "1.2")
+                                               , Map.entry(47, "1.3")
+                                               , Map.entry(48, "1.4")
+                                               , Map.entry(49, "1.5")
+                                               , Map.entry(50, "6")
+                                               , Map.entry(51, "7")
+                                               , Map.entry(52, "8")
+                                               , Map.entry(53, "9")
+                                               , Map.entry(54, "10")
+                                               , Map.entry(55, "11")
+                                               , Map.entry(56, "12")
+                                               , Map.entry(57, "13")
+                                               , Map.entry(58, "14")
+                                               , Map.entry(59, "15")
+                                               , Map.entry(60, "16")
+                                               , Map.entry(61, "17")
+                                               , Map.entry(62, "18")
+                                               , Map.entry(63, "19")
+                                               , Map.entry(64, "20")
+                                               , Map.entry(65, "21")
+                                               , Map.entry(66, "22")
+                                               , Map.entry(67, "23")
+                                               , Map.entry(68, "24")
+                                               /* ADD NEW VERSION HERE */
+                                           );
 
   /**
    * Constructor of ClassInfoDumper.
@@ -216,7 +217,7 @@ public class ClassInfoDumper implements Dumper{
     if(clazz.minorVersion() != 0){
       clsVerStr += clazz.minorVersion() == 65535 ? " (Preview)" : " (Unknown minor version)";
     }
-    System.out.println(String.format("Class version: %d.%d (%s)",
+    System.out.println(String.format("Class version: %d.%d (Java release: %s)",
                                      clazz.majorVersion(), clazz.minorVersion(), clsVerStr));
   }
 
