@@ -9,7 +9,7 @@ jobs:
     name: Determine Java version which should be added
     outputs:
       new-version: ${{ steps.determine-version.outputs.value }}
-      outcome: ${{ steps.outcome.outputs.value }}
+      outcome: ${{ steps.try-to-download.outcome }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,12 +34,9 @@ jobs:
           java-version: ${{ steps.determine-version.outputs.value }}
           cache: maven
         continue-on-error: true
-      - name: Set outcome
-        id: outcome
-        run: echo "value=${{ steps.try-to-download.outcome }}" >> "$GITHUB_OUTPUT"
       - name: Upload artifacts
         id: upload-artifacts
-        if: ${{ steps.outcome.outputs.value == 'success' }}
+        if: ${{ steps.try-to-download.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: cfa-tmp
