@@ -21,6 +21,7 @@ package com.yasuenag.cfa;
 import java.nio.file.Path;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.constantpool.ClassEntry;
@@ -28,10 +29,10 @@ import java.lang.classfile.constantpool.FieldRefEntry;
 import java.lang.classfile.constantpool.InterfaceMethodRefEntry;
 import java.lang.classfile.constantpool.MemberRefEntry;
 import java.lang.classfile.constantpool.MethodRefEntry;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -86,32 +87,17 @@ public class ClassInfoDumper implements Dumper{
    */
   private static final Pattern JNISIG_PATTERN = Pattern.compile("^L(.+);$");
 
-  public static final Map<Integer, String> CLASS_VERSION_MAP = Map.ofEntries(
-                                                 Map.entry(46, "1.2")
-                                               , Map.entry(47, "1.3")
-                                               , Map.entry(48, "1.4")
-                                               , Map.entry(49, "1.5")
-                                               , Map.entry(50, "6")
-                                               , Map.entry(51, "7")
-                                               , Map.entry(52, "8")
-                                               , Map.entry(53, "9")
-                                               , Map.entry(54, "10")
-                                               , Map.entry(55, "11")
-                                               , Map.entry(56, "12")
-                                               , Map.entry(57, "13")
-                                               , Map.entry(58, "14")
-                                               , Map.entry(59, "15")
-                                               , Map.entry(60, "16")
-                                               , Map.entry(61, "17")
-                                               , Map.entry(62, "18")
-                                               , Map.entry(63, "19")
-                                               , Map.entry(64, "20")
-                                               , Map.entry(65, "21")
-                                               , Map.entry(66, "22")
-                                               , Map.entry(67, "23")
-                                               , Map.entry(68, "24")
-                                               /* ADD NEW VERSION HERE */
-                                           );
+  public static final Properties CLASS_VERSION_MAP;
+
+  static{
+    CLASS_VERSION_MAP = new Properties();
+    try(var res = ClassInfoDumper.class.getResourceAsStream("/versions.properties")){
+      CLASS_VERSION_MAP.load(res);
+    }
+    catch(IOException e){
+      throw new UncheckedIOException(e);
+    }
+  }
 
   /**
    * Constructor of ClassInfoDumper.
@@ -213,7 +199,7 @@ public class ClassInfoDumper implements Dumper{
     System.out.println("Interfaces:");
     interfaceSet.forEach(e -> System.out.println("  " + e));
 
-    String clsVerStr = CLASS_VERSION_MAP.getOrDefault(clazz.majorVersion(), "Unknown");
+    String clsVerStr = (String)CLASS_VERSION_MAP.getOrDefault(Integer.toString(clazz.majorVersion()), "Unknown");
     if(clazz.minorVersion() != 0){
       clsVerStr += clazz.minorVersion() == 65535 ? " (Preview)" : " (Unknown minor version)";
     }

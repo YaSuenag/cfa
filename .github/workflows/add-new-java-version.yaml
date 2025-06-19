@@ -24,7 +24,8 @@ jobs:
       - name: Get new Java version
         id: determine-version
         run: |
-          NEW_JAVA_VER=`echo 'println(Integer.valueOf(com.yasuenag.cfa.ClassInfoDumper.CLASS_VERSION_MAP.entrySet().stream().max(java.util.Map.Entry.comparingByKey()).get().getValue()) + 1)' | jshell -s --class-path target/classes PRINTING -`
+          CURRENT_JAVA_VER=`grep -vE '^#' src/main/resources/versions.properties | sed -e 's/^.\+: \([0-9\.]\+\)$/\1/g' | sort -n | tail -n 1`
+          NEW_JAVA_VER=$((CURRENT_JAVA_VER+1))
           echo "value=$NEW_JAVA_VER" >> "$GITHUB_OUTPUT"
       - name: Try to download new Java
         id: try-to-download
@@ -66,7 +67,7 @@ jobs:
           echo "value=$NEW_CLASS_VER" >> "$GITHUB_OUTPUT"
       - name: Add new entry
         run: |
-          sed -i 's|^\( \+\)/\* ADD NEW VERSION HERE \*/$|\1, Map.entry(${{ steps.detect-new-class-ver.outputs.value }}, "${{ needs.determine-java-version.outputs.new-version }}")\n\0|' src/main/java/com/yasuenag/cfa/ClassInfoDumper.java
+          echo "${{ steps.detect-new-class-ver.outputs.value }}: ${{ needs.determine-java-version.outputs.new-version }}" >> src/main/resources/versions.properties
       - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: Add Java ${{ needs.determine-java-version.outputs.new-version }}
