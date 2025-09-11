@@ -2,6 +2,9 @@ name: Add new Java / class file version to CFA
 
 on:
   workflow_dispatch:
+  schedule:
+    # At 10:03 on Wednesday in March and September.
+    - cron: '3 10 * 3,9 3'
 
 jobs:
   determine-java-version:
