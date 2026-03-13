@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  Copyright (C) 2021, 2025, Yasumasa Suenaga
+  Copyright (C) 2021, 2026, Yasumasa Suenaga
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -70,34 +70,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jlink-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <zipDirPrefix>${project.build.finalName}/</zipDirPrefix>
                     <classifier>${package.os.name}-${os.arch}</classifier>
                     <launcher>${project.artifactId}=cfa/com.yasuenag.cfa.Main</launcher>
                     <noHeaderFiles>true</noHeaderFiles>
                     <noManPages>true</noManPages>
+                    <additionalResources>
+                        <additionalResource>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>README.md</include>
+                                <include>LICENSE</include>
+                            </includes>
+                        </additionalResource>
+                    </additionalResources>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/distribution.xml</descriptor>
-                    </descriptors>
-                    <attach>false</attach>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
         <resources>
