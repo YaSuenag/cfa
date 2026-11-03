@@ -42,7 +42,7 @@ jobs:
       uses: actions/setup-java@v4.9.1
       with:
         distribution: temurin
-        java-version: 24
+        java-version: 25
         cache: maven
 
     # Initializes the CodeQL tools for scanning.
