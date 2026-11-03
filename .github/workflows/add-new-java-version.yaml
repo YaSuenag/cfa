@@ -15,7 +15,7 @@ jobs:
       outcome: ${{ steps.try-to-download.outcome }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
       - name: Get new Java version
         id: determine-version
         run: |
@@ -24,7 +24,7 @@ jobs:
           echo "value=$NEW_JAVA_VER" >> "$GITHUB_OUTPUT"
       - name: Try to download new Java
         id: try-to-download
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v4.9.1
         with:
           distribution: oracle
           java-version: ${{ steps.determine-version.outputs.value }}
@@ -38,9 +38,9 @@ jobs:
     if: ${{ needs.determine-java-version.outputs.outcome == 'success' }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.4.0
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v4.9.1
         with:
           distribution: oracle
           java-version: ${{ needs.determine-java-version.outputs.new-version }}
@@ -53,7 +53,7 @@ jobs:
       - name: Add new entry
         run: |
           echo "${{ steps.detect-new-class-ver.outputs.value }}: ${{ needs.determine-java-version.outputs.new-version }}" >> src/main/resources/versions.properties
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v7.0.11
         with:
           commit-message: Add Java ${{ needs.determine-java-version.outputs.new-version }}
           title: Add Java ${{ needs.determine-java-version.outputs.new-version }}
